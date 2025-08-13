@@ -161,7 +161,11 @@ class MainDashboard {
     handleMonthlyStats() {
         this.showToast('월별 기록 페이지로 이동합니다');
         this.addButtonFeedback(this.monthlyStatsBtn);
-        console.log('월별 기록 보기');
+        
+        // Navigate to monthly records page
+        setTimeout(() => {
+            window.location.href = `monthly.html?user=${encodeURIComponent(this.currentUser.id)}`;
+        }, 500);
     }
     
     handlePomodoroStart() {

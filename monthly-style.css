@@ -1,0 +1,492 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #F0F0F0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* iPhone Container */
+.iphone-container {
+    width: 375px;
+    height: 812px;
+    background: #FFFFFF;
+    border-radius: 40px;
+    border: 8px solid #1F1F1F;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Status Bar */
+.status-bar {
+    height: 44px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background: #FFFFFF;
+    font-size: 17px;
+    font-weight: 600;
+    color: #000000;
+    position: relative;
+    z-index: 100;
+}
+
+.time {
+    letter-spacing: -0.3px;
+}
+
+.status-icons {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.notch {
+    position: absolute;
+    top: -44px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 164px;
+    height: 30px;
+    background: #000000;
+    border-radius: 0 0 16px 16px;
+}
+
+.right-icons {
+    display: flex;
+    gap: 4px;
+    font-size: 16px;
+}
+
+/* App Header */
+.app-header {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background: #FFFFFF;
+    border-bottom: 0.5px solid #E5E5E5;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 400;
+    color: #007AFF;
+    cursor: pointer;
+    padding: 8px 0;
+    transition: opacity 0.3s ease;
+}
+
+.back-button:active {
+    opacity: 0.5;
+}
+
+.back-text {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.app-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    letter-spacing: -0.4px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.header-spacer {
+    width: 60px; /* Match back button width for centering */
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    background: #F2F2F7;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Calendar Section */
+.calendar-section {
+    background: #FFFFFF;
+    padding: 20px;
+    border-bottom: 0.5px solid #E5E5E5;
+}
+
+.month-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.month-nav {
+    background: none;
+    border: none;
+    font-size: 24px;
+    font-weight: 300;
+    color: #007AFF;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.month-nav:hover {
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.month-nav:active {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.month-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    letter-spacing: -0.4px;
+}
+
+/* Calendar Container */
+.calendar-container {
+    width: 100%;
+}
+
+.weekday-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    margin-bottom: 16px;
+}
+
+.weekday-header {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #8E8E93;
+    padding: 8px 0;
+    letter-spacing: 0.5px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: rgba(0, 122, 255, 0.1);
+}
+
+.calendar-day.active {
+    background: #007AFF;
+    color: #FFFFFF;
+    font-weight: 600;
+}
+
+.calendar-day.highlighted {
+    background: #007AFF;
+    color: #FFFFFF;
+    font-weight: 500;
+}
+
+.calendar-day.other-month {
+    color: #C7C7CC;
+}
+
+.calendar-day.has-session::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #34C759;
+    border-radius: 50%;
+}
+
+.calendar-day.active.has-session::after {
+    background: #FFFFFF;
+}
+
+/* Sessions Section */
+.sessions-section {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.session-item {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 0.5px solid #E5E5E5;
+    transition: all 0.3s ease;
+}
+
+.session-item:active {
+    transform: scale(0.98);
+    background: #F8F9FA;
+}
+
+.session-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.session-label {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.session-time {
+    font-size: 16px;
+    font-weight: 400;
+    color: #8E8E93;
+    background: #F2F2F7;
+    padding: 6px 12px;
+    border-radius: 8px;
+}
+
+.session-date-time {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.session-date {
+    font-size: 16px;
+    font-weight: 400;
+    color: #007AFF;
+}
+
+.session-time.active {
+    color: #007AFF;
+    background: rgba(0, 122, 255, 0.1);
+    font-weight: 500;
+}
+
+.session-time-picker {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.time-display {
+    font-size: 16px;
+    font-weight: 400;
+    color: #007AFF;
+}
+
+.time-period-selector {
+    display: flex;
+    background: #F2F2F7;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.period-btn {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8E8E93;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.period-btn.active {
+    background: #007AFF;
+    color: #FFFFFF;
+}
+
+.period-btn:not(.active):hover {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007AFF;
+}
+
+.session-date.active {
+    color: #007AFF;
+    font-weight: 500;
+}
+
+/* Home Indicator */
+.home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 134px;
+    height: 5px;
+    background: #000000;
+    border-radius: 3px;
+}
+
+/* Responsive Design */
+@media (max-width: 420px) {
+    .iphone-container {
+        width: 100%;
+        max-width: 375px;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+    
+    body {
+        padding: 0;
+        align-items: stretch;
+    }
+    
+    .calendar-section {
+        padding: 16px;
+    }
+    
+    .sessions-section {
+        padding: 16px;
+    }
+}
+
+/* Animations */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.calendar-day {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.session-item {
+    animation: slideInUp 0.4s ease-out;
+}
+
+.session-item:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.session-item:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.session-item:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+/* Loading State */
+.loading .calendar-grid {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.loading .sessions-section {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Success Feedback */
+.success-feedback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(52, 199, 89, 0.95);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 1000;
+    opacity: 0;
+    animation: successPop 2s ease-in-out;
+}
+
+@keyframes successPop {
+    0%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    15%, 85% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus States */
+.month-nav:focus-visible,
+.period-btn:focus-visible,
+.back-button:focus-visible,
+.calendar-day:focus-visible {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* Text Selection */
+::selection {
+    background: #007AFF;
+    color: white;
+}

@@ -3,6 +3,7 @@
 /login      /index.html     200  
 /signup     /signup.html    200
 /main       /main.html      200
+/monthly    /monthly.html   200
 
 # Legacy support
 /login.html /index.html     301
