@@ -1,5 +1,6 @@
 class NewSignupFlow {
     constructor() {
+        console.log('NewSignupFlow v2.0 - 4자 이상 비밀번호 규칙');
         this.currentStep = 1;
         this.totalSteps = 3;
         this.isKeyboardVisible = false;
