@@ -159,22 +159,22 @@ class PomodoroStart {
             this.hourWheel.appendChild(option);
         }
         
-        // Generate minutes (00, 15, 30, 45)
+        // Generate minutes (00-59)
         this.minuteWheel.innerHTML = '';
-        const minutes = ['00', '15', '30', '45'];
-        minutes.forEach(minute => {
+        for (let i = 0; i < 60; i++) {
+            const minute = i.toString().padStart(2, '0');
             const option = document.createElement('div');
             option.classList.add('time-option');
             option.dataset.value = minute;
             option.textContent = minute;
             
-            if (parseInt(minute) === this.selectedTime.minute) {
+            if (i === this.selectedTime.minute) {
                 option.classList.add('selected');
             }
             
-            option.addEventListener('click', () => this.selectTimeOption('minute', parseInt(minute), option));
+            option.addEventListener('click', () => this.selectTimeOption('minute', i, option));
             this.minuteWheel.appendChild(option);
-        });
+        }
         
         // Period (AM/PM) already exists in HTML
         const periodOptions = this.periodWheel.querySelectorAll('.time-option');
