@@ -13,10 +13,6 @@ class MainDashboard {
     }
     
     initializeElements() {
-        // Header elements
-        this.settingsBtn = document.getElementById('settingsBtn');
-        this.menuBtn = document.getElementById('menuBtn');
-        
         // Statistics elements
         this.studyStatsBtn = document.getElementById('studyStatsBtn');
         this.monthlyStatsBtn = document.getElementById('monthlyStatsBtn');
@@ -52,10 +48,6 @@ class MainDashboard {
     }
     
     attachEventListeners() {
-        // Header buttons
-        this.settingsBtn.addEventListener('click', () => this.handleSettings());
-        this.menuBtn.addEventListener('click', () => this.handleMenu());
-        
         // Statistics buttons
         this.studyStatsBtn.addEventListener('click', () => this.handleStudyStats());
         this.monthlyStatsBtn.addEventListener('click', () => this.handleMonthlyStats());
@@ -75,7 +67,7 @@ class MainDashboard {
     
     addTouchFeedback() {
         const interactiveElements = [
-            this.settingsBtn, this.menuBtn, this.studyStatsBtn, this.monthlyStatsBtn,
+            this.studyStatsBtn, this.monthlyStatsBtn,
             this.pomodoroStartCard, this.pomodoroRankingCard, this.eventCard,
             this.breakBtn, this.focusBtn
         ];
@@ -140,17 +132,6 @@ class MainDashboard {
     }
     
     // Event handlers
-    handleSettings() {
-        this.showToast('설정 페이지로 이동합니다');
-        this.addButtonFeedback(this.settingsBtn);
-        console.log('Settings 버튼 클릭');
-    }
-    
-    handleMenu() {
-        this.showToast('메뉴를 표시합니다');
-        this.addButtonFeedback(this.menuBtn);
-        console.log('Menu 버튼 클릭');
-    }
     
     handleStudyStats() {
         this.showToast('학습 통계 상세 페이지로 이동합니다');
