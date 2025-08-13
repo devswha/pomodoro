@@ -163,6 +163,8 @@
                 loadUserData() {
                     const urlParams = new URLSearchParams(window.location.search);
                     const userId = urlParams.get('user') || localStorage.getItem('currentUser') || '사용자';
+                    console.log('🔍 URL 파라미터:', urlParams.toString());
+                    console.log('👤 사용자 ID:', userId);
                     
                     this.currentUser = {
                         id: userId,
@@ -216,6 +218,8 @@
                     if (userName && userInitial && this.currentUser) {
                         userName.textContent = this.currentUser.id;
                         userInitial.textContent = this.currentUser.id.charAt(0).toUpperCase();
+                        
+                        console.log('✨ UI 업데이트: 이름=' + this.currentUser.id + ', 초기=' + this.currentUser.id.charAt(0).toUpperCase());
                         
                         const colors = [
                             'linear-gradient(135deg, #007AFF, #5856D6)',
