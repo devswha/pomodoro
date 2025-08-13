@@ -40,27 +40,56 @@ class MyPage {
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user') || localStorage.getItem('currentUser') || '사용자';
         
+        // 사용자 매니저를 통해 로그인 및 데이터 로드
+        const userData = window.userManager.loginUser(userId);
+        const userStats = window.userManager.getUserStats(userId);
+        const userSessions = window.userManager.getUserSessions(userId);
+        
         this.currentUser = {
             id: userId,
-            name: userId,
+            name: userData.displayName || userId,
             location: '이매/95',
-            stats: {
-                mostFocusedSessions: 15,
-                totalPomodoroSessions: 100,
-                stickerCount: 50,
-                stickerPercentage: 50,
-                verticalCount: 40,
-                verticalPercentage: 40,
-                crossCount: 10,
-                crossPercentage: 10,
-                monthlyPoints: 253,
-                monthlyPointsPercentage: 10,
-                mostPenaltySessions: 7,
-                challengeCount: 24
-            }
+            realStats: userStats,
+            sessions: userSessions,
+            stats: this.calculateDisplayStats(userStats, userSessions)
         };
         
-        console.log('✅ 사용자 데이터 로드 완료:', this.currentUser.id);
+        console.log('✅ 실제 사용자 데이터 로드 완료:', this.currentUser);
+    }
+
+    calculateDisplayStats(userStats, sessions) {
+        const completedSessions = sessions.filter(s => s.status === 'completed');
+        const currentMonth = new Date().toISOString().substring(0, 7);
+        const thisMonthSessions = completedSessions.filter(s => 
+            s.createdAt && s.createdAt.startsWith(currentMonth)
+        );
+        
+        // 가장 집중이 잘 되는 시간대 계산
+        const hourCounts = {};
+        completedSessions.forEach(session => {
+            if (session.startTime) {
+                const hour = new Date(session.startTime).getHours();
+                hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+            }
+        });
+        const mostFocusedHour = Object.keys(hourCounts).reduce((a, b) => 
+            hourCounts[a] > hourCounts[b] ? a : b, 14);
+
+        return {
+            mostFocusedSessions: parseInt(mostFocusedHour),
+            totalPomodoroSessions: userStats.totalSessions || 0,
+            stickerCount: userStats.completedSessions || 0,
+            stickerPercentage: Math.round(userStats.completionRate || 0),
+            verticalCount: thisMonthSessions.length || 0,
+            verticalPercentage: Math.min(100, Math.round((thisMonthSessions.length / 30) * 100)),
+            crossCount: (userStats.totalSessions - userStats.completedSessions) || 0,
+            crossPercentage: userStats.totalSessions > 0 ? 
+                Math.round(((userStats.totalSessions - userStats.completedSessions) / userStats.totalSessions) * 100) : 0,
+            monthlyPoints: Math.round((userStats.completedMinutes || 0) * 0.1),
+            monthlyPointsPercentage: Math.min(100, Math.round(((userStats.completedMinutes || 0) / 1000) * 100)),
+            mostPenaltySessions: Math.max(0, (userStats.totalSessions - userStats.completedSessions) || 0),
+            challengeCount: userStats.streakDays || 0
+        };
     }
     
     setupEventListeners() {
@@ -114,58 +143,110 @@ class MyPage {
     }
     
     loadStudyData() {
-        // Generate mock study data for charts
-        this.studyData = {
-            pomodoroTop5: {
-                pv: 64.4,
-                grid: 69.88,
-                battery: 182.28,
-                total: 317
-            },
-            stickerTop5: {
-                pv: 64.4,
-                grid: 69.88,
-                battery: 182.28,
-                total: 317
-            },
-            challengeTop5: {
-                pv: 64.4,
-                grid: 69.88,
-                battery: 182.28,
-                total: 317
-            },
-            hourlyStudy: this.generateHourlyData(),
-            cumulativeStudy: this.generateCumulativeData()
+        // Generate real study data from user sessions
+        const userStats = this.currentUser.realStats;
+        const sessions = this.currentUser.sessions;
+        
+        this.studyData = this.generateRealStudyData(userStats, sessions);
+    }
+
+    generateRealStudyData(userStats, sessions) {
+        const completedSessions = sessions.filter(s => s.status === 'completed');
+        
+        // Generate realistic data based on actual sessions
+        // Generate realistic data based on actual sessions
+        const tags = userStats.tags || {};
+        const locations = userStats.locations || {};
+        const dailyStats = userStats.dailyStats || {};
+        
+        // Top 5 태그/카테고리 데이터
+        const topTags = Object.entries(tags)
+            .sort(([,a], [,b]) => b.minutes - a.minutes)
+            .slice(0, 5);
+        
+        const pomodoroTop5 = { total: userStats.totalMinutes || 0 };
+        if (topTags.length > 0) {
+            topTags.forEach(([tagName, data]) => {
+                pomodoroTop5[tagName.toLowerCase().replace(/\s+/g, '')] = data.minutes;
+            });
+        } else {
+            pomodoroTop5.study = 0;
+            pomodoroTop5.work = 0;
+            pomodoroTop5.reading = 0;
+        }
+        
+        // 스티커(완료 세션) 데이터
+        const stickerTop5 = { total: userStats.completedSessions || 0 };
+        if (topTags.length > 0) {
+            topTags.forEach(([tagName, data]) => {
+                stickerTop5[tagName.toLowerCase().replace(/\s+/g, '')] = data.count;
+            });
+        } else {
+            stickerTop5.study = 0;
+            stickerTop5.work = 0;
+            stickerTop5.reading = 0;
+        }
+        
+        // 챌린지 데이터 (스트릭 기반)
+        const challengeTop5 = {
+            total: userStats.streakDays || 0,
+            current: userStats.streakDays || 0,
+            longest: userStats.longestStreak || 0,
+            weekly: Math.min(7, userStats.streakDays || 0)
+        };
+        
+        return {
+            pomodoroTop5,
+            stickerTop5,
+            challengeTop5,
+            hourlyStudy: this.generateHourlyData(sessions),
+            cumulativeStudy: this.generateCumulativeData(dailyStats)
         };
         
         console.log('✅ 학습 데이터 로드 완료');
     }
     
-    generateHourlyData() {
+    generateHourlyData(sessions) {
+        const hourlyData = new Array(24).fill(0);
+        
+        // 실제 세션 데이터에서 시간별 집계
+        sessions.forEach(session => {
+            if (session.startTime) {
+                const hour = new Date(session.startTime).getHours();
+                hourlyData[hour] += session.duration || 25;
+            }
+        });
+        
         const hours = [];
         for (let i = 0; i < 24; i++) {
-            const positiveValue = Math.random() * 100 + 20;
-            const negativeValue = -(Math.random() * 50 + 10);
             hours.push({
                 hour: i,
-                positive: positiveValue,
-                negative: negativeValue,
-                net: positiveValue + negativeValue
+                positive: hourlyData[i],
+                negative: 0, // 실패나 중단 세션이 있다면 여기에 추가
+                net: hourlyData[i]
             });
         }
         return hours;
     }
     
-    generateCumulativeData() {
+    generateCumulativeData(dailyStats) {
         const days = [];
         let cumulative = 0;
-        for (let i = 0; i < 30; i++) {
-            const dailyStudy = Math.random() * 4 + 1; // 1-5 hours per day
-            cumulative += dailyStudy;
+        const today = new Date();
+        
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toISOString().split('T')[0];
+            
+            const dailyMinutes = dailyStats[dateStr]?.completed || 0;
+            const dailyHours = dailyMinutes / 60;
+            cumulative += dailyHours;
+            
             days.push({
-                day: i + 1,
-                daily: dailyStudy,
-                cumulative: cumulative
+                day: 30 - i,
+                daily: Math.round(dailyHours * 100) / 100,
+                cumulative: Math.round(cumulative * 100) / 100
             });
         }
         return days;

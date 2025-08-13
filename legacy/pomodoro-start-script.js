@@ -69,9 +69,10 @@ class PomodoroStart {
         const urlParams = new URLSearchParams(window.location.search);
         const userId = urlParams.get('user') || localStorage.getItem('currentUser') || '사용자';
         
-        this.currentUser = {
-            id: userId
-        };
+        // 사용자 매니저를 통해 로그인 (자동 등록 포함)
+        this.currentUser = window.userManager.loginUser(userId);
+        
+        console.log('Current user loaded:', this.currentUser.id);
     }
     
     attachEventListeners() {
@@ -492,28 +493,159 @@ class PomodoroStart {
         // Simulate API call delay
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Store session data in localStorage
-        const sessions = JSON.parse(localStorage.getItem('pomodoroSessions') || '[]');
+        // Create active pomodoro session
+        const now = new Date();
+        let startTime;
+        
+        // Calculate start time
+        let hour = this.selectedTime.hour;
+        if (this.selectedTime.period === 'PM' && hour !== 12) {
+            hour += 12;
+        } else if (this.selectedTime.period === 'AM' && hour === 12) {
+            hour = 0;
+        }
+        
+        const selectedDateTime = new Date(this.selectedDate);
+        selectedDateTime.setHours(hour, this.selectedTime.minute, 0, 0);
+        
+        // If selected time is in the future, use it; otherwise start immediately
+        if (selectedDateTime > now) {
+            startTime = selectedDateTime;
+        } else {
+            startTime = now;
+        }
+        
+        const sessionId = `session_${Date.now()}`;
+        const duration = (this.is50MinuteMode ? 50 : 25) * 60 * 1000; // in milliseconds
+        
+        const activeSession = {
+            id: sessionId,
+            title: this.pomodoroData.title || '뽀모도로 세션',
+            goal: this.pomodoroData.goal || '',
+            tags: this.pomodoroData.tags || '',
+            location: this.pomodoroData.location || '',
+            duration: this.is50MinuteMode ? 50 : 25, // in minutes
+            startTime: startTime.toISOString(),
+            endTime: new Date(startTime.getTime() + duration).toISOString(),
+            user: this.currentUser.id,
+            status: 'active',
+            createdAt: now.toISOString()
+        };
+        
+        // Store active session (user-specific)
+        localStorage.setItem(`activePomodoroSession_${this.currentUser.id}`, JSON.stringify(activeSession));
+        
+        // Store session data in user-specific history
+        const userSessionsKey = `pomodoroSessions_${this.currentUser.id}`;
+        const sessions = JSON.parse(localStorage.getItem(userSessionsKey) || '[]');
         sessions.push({
-            ...sessionData,
-            id: `session_${Date.now()}`,
+            ...activeSession,
             status: 'scheduled'
         });
-        localStorage.setItem('pomodoroSessions', JSON.stringify(sessions));
+        localStorage.setItem(userSessionsKey, JSON.stringify(sessions));
+        
+        // Also update user statistics
+        this.updateUserStats(activeSession);
         
         return { success: true, sessionId: `session_${Date.now()}` };
     }
+
+    updateUserStats(sessionData) {
+        // 사용자 매니저를 통해 통계 업데이트
+        const currentStats = window.userManager.getUserStats(this.currentUser.id);
+        
+        // Update basic stats
+        const updates = {
+            totalSessions: currentStats.totalSessions + 1,
+            totalMinutes: currentStats.totalMinutes + sessionData.duration
+        };
+        
+        // Track daily stats
+        const today = new Date().toISOString().split('T')[0];
+        if (!currentStats.dailyStats[today]) {
+            currentStats.dailyStats[today] = { sessions: 0, minutes: 0, completed: 0 };
+        }
+        currentStats.dailyStats[today].sessions++;
+        currentStats.dailyStats[today].minutes += sessionData.duration;
+        updates.dailyStats = currentStats.dailyStats;
+        
+        // Track monthly stats
+        const month = today.substring(0, 7);
+        if (!currentStats.monthlyStats[month]) {
+            currentStats.monthlyStats[month] = { sessions: 0, minutes: 0, completed: 0 };
+        }
+        currentStats.monthlyStats[month].sessions++;
+        currentStats.monthlyStats[month].minutes += sessionData.duration;
+        updates.monthlyStats = currentStats.monthlyStats;
+        
+        // Track tags
+        if (sessionData.tags) {
+            const tags = sessionData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+            tags.forEach(tag => {
+                if (!currentStats.tags[tag]) {
+                    currentStats.tags[tag] = { count: 0, minutes: 0 };
+                }
+                currentStats.tags[tag].count++;
+                currentStats.tags[tag].minutes += sessionData.duration;
+            });
+            updates.tags = currentStats.tags;
+        }
+        
+        // Track locations
+        if (sessionData.location) {
+            if (!currentStats.locations[sessionData.location]) {
+                currentStats.locations[sessionData.location] = { count: 0, minutes: 0 };
+            }
+            currentStats.locations[sessionData.location].count++;
+            currentStats.locations[sessionData.location].minutes += sessionData.duration;
+            updates.locations = currentStats.locations;
+        }
+        
+        // Update streak
+        this.updateStreak(currentStats, today);
+        updates.streakDays = currentStats.streakDays;
+        updates.longestStreak = currentStats.longestStreak;
+        updates.lastSessionDate = today;
+        
+        // Use UserManager to update stats
+        const updatedStats = window.userManager.updateUserStats(this.currentUser.id, updates);
+        console.log('📊 사용자 통계 업데이트 완료:', updatedStats);
+    }
+
+    updateStreak(userStats, today) {
+        const lastDate = userStats.lastSessionDate;
+        
+        if (!lastDate) {
+            userStats.streakDays = 1;
+        } else {
+            const lastSessionDate = new Date(lastDate);
+            const currentDate = new Date(today);
+            const daysDiff = Math.floor((currentDate - lastSessionDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysDiff === 0) {
+                // Same day, streak continues
+            } else if (daysDiff === 1) {
+                // Next day, increase streak
+                userStats.streakDays++;
+            } else {
+                // Streak broken, reset
+                userStats.streakDays = 1;
+            }
+        }
+        
+        // Update longest streak
+        if (userStats.streakDays > userStats.longestStreak) {
+            userStats.longestStreak = userStats.streakDays;
+        }
+    }
     
     navigateToTimer(sessionData) {
-        // Navigate to pomodoro timer page with session data
-        const params = new URLSearchParams({
-            user: this.currentUser.id,
-            duration: sessionData.duration.toString(),
-            title: sessionData.title || sessionData.goal || '뽀모도로 세션',
-            sessionId: `session_${Date.now()}`
-        });
-        
-        window.location.href = `pomodoro-timer.html?${params.toString()}`;
+        // Navigate back to main page where active session will be displayed
+        if (this.currentUser) {
+            window.location.href = `main.html?user=${encodeURIComponent(this.currentUser.id)}`;
+        } else {
+            window.location.href = 'main.html';
+        }
     }
     
     showSuccessMessage() {
