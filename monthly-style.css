@@ -28,47 +28,6 @@ body {
     flex-direction: column;
 }
 
-/* Status Bar */
-.status-bar {
-    height: 44px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    background: #FFFFFF;
-    font-size: 17px;
-    font-weight: 600;
-    color: #000000;
-    position: relative;
-    z-index: 100;
-}
-
-.time {
-    letter-spacing: -0.3px;
-}
-
-.status-icons {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.notch {
-    position: absolute;
-    top: -44px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 164px;
-    height: 30px;
-    background: #000000;
-    border-radius: 0 0 16px 16px;
-}
-
-.right-icons {
-    display: flex;
-    gap: 4px;
-    font-size: 16px;
-}
 
 /* App Header */
 .app-header {

@@ -28,91 +28,12 @@ body {
     flex-direction: column;
 }
 
-/* Status Bar */
-.status-bar {
-    height: 44px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    background: #FFFFFF;
-    font-size: 17px;
-    font-weight: 600;
-    color: #000000;
-    position: relative;
-    z-index: 100;
-}
-
-.time {
-    letter-spacing: -0.3px;
-}
-
-.status-icons {
-    display: flex;
-    align-items: center;
-    position: relative;
-}
-
-.notch {
-    position: absolute;
-    top: -44px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 164px;
-    height: 30px;
-    background: #000000;
-    border-radius: 0 0 16px 16px;
-}
-
-.right-icons {
-    display: flex;
-    gap: 4px;
-    font-size: 16px;
-}
-
-/* App Header */
-.app-header {
-    height: 60px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 20px;
-    background: #FFFFFF;
-    border-bottom: 0.5px solid #E5E5E5;
-}
-
-.app-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #000000;
-    letter-spacing: -0.5px;
-}
-
-.header-actions {
-    display: flex;
-    gap: 16px;
-}
-
-.header-action {
-    background: none;
-    border: none;
-    font-size: 16px;
-    font-weight: 500;
-    color: #007AFF;
-    cursor: pointer;
-    padding: 8px 0;
-    transition: opacity 0.3s ease;
-}
-
-.header-action:active {
-    opacity: 0.5;
-}
 
 /* Main Content */
 .main-content {
     flex: 1;
     background: #F2F2F7;
-    padding: 20px;
+    padding: 40px 20px 20px;
     overflow-y: auto;
 }
 
