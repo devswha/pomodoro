@@ -29,7 +29,11 @@ class LoginForm {
         this.loginPasswordInput.addEventListener('blur', (e) => this.handleInputBlur(e));
         
         // Button events
-        this.loginButton.addEventListener('click', () => this.handleLogin());
+        this.loginButton.addEventListener('click', (e) => {
+            console.log('Login button clicked', { disabled: this.loginButton.disabled });
+            e.preventDefault();
+            this.handleLogin();
+        });
         this.signupLink.addEventListener('click', () => this.handleSignup());
         this.forgotIdLink.addEventListener('click', () => this.handleForgotId());
         this.forgotPasswordLink.addEventListener('click', () => this.handleForgotPassword());
@@ -117,7 +121,16 @@ class LoginForm {
     }
     
     async handleLogin() {
-        if (!this.isFormValid()) return;
+        console.log('handleLogin called');
+        
+        // Force enable for test account
+        if ((this.loginId === 'test' || this.loginId.trim() === 'test') && 
+            (this.loginPassword === 'test' || this.loginPassword.trim() === 'test')) {
+            console.log('Force enabling test account login');
+        } else if (!this.isFormValid()) {
+            console.log('Form validation failed');
+            return;
+        }
         
         // Add loading state
         this.setLoadingState(true);
@@ -148,10 +161,12 @@ class LoginForm {
         
         console.log('Login attempt:', { id: this.loginId, password: this.loginPassword });
         
-        // Check default test account
-        if (this.loginId === 'test' && this.loginPassword === 'test') {
+        // Check default test account (multiple variations)
+        if ((this.loginId === 'test' && this.loginPassword === 'test') ||
+            (this.loginId.toLowerCase() === 'test' && this.loginPassword.toLowerCase() === 'test') ||
+            (this.loginId.trim() === 'test' && this.loginPassword.trim() === 'test')) {
             console.log('Default test account login successful');
-            return { success: true, user: { id: this.loginId } };
+            return { success: true, user: { id: 'test' } };
         }
         
         // Check stored accounts from signup
@@ -326,7 +341,9 @@ class LoginForm {
 
 // Initialize login form when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded - initializing login form');
     const loginForm = new LoginForm();
+    console.log('Login form initialized:', loginForm);
     
     // Check for auto-fill
     loginForm.detectAutoFill();
