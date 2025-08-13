@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지 - 학습 통계</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="mypage-style.css">
+</head>
+<body>
+    <div class="iphone-container">
+        
+        <!-- App Header -->
+        <div class="app-header">
+            <button class="back-button" id="backBtn">
+                <span class="back-text">뒤로</span>
+            </button>
+            <h1 class="app-title" id="pageTitle">test의 My Page</h1>
+            <div class="header-spacer"></div>
+        </div>
+
+        <!-- Filter Header -->
+        <div class="filter-header">
+            <div class="filter-controls">
+                <div class="period-selector">
+                    <select class="period-select" id="periodSelect">
+                        <option value="day">Day</option>
+                        <option value="week">Week</option>
+                        <option value="month" selected>Month</option>
+                    </select>
+                </div>
+                
+                <div class="date-range-selector">
+                    <button class="date-range-btn" id="dateRangeBtn">
+                        <span class="date-range-text" id="dateRangeText">May 13, 2024 → May 13, 2024</span>
+                        <span class="dropdown-icon">▼</span>
+                    </button>
+                </div>
+                
+                <button class="search-btn" id="searchBtn">
+                    <span class="search-icon">🔍</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <!-- Row 1 -->
+                <div class="stat-card primary">
+                    <div class="stat-label">가장 잠심 횟수</div>
+                    <div class="stat-value">15<span class="stat-unit">회</span></div>
+                </div>
+                
+                <div class="stat-card primary">
+                    <div class="stat-label">총 뽀모도로 횟수</div>
+                    <div class="stat-value">100<span class="stat-unit">회</span></div>
+                </div>
+                
+                <div class="stat-card achievement">
+                    <div class="stat-header">
+                        <span class="achievement-label">스티커 (+3)</span>
+                    </div>
+                    <div class="stat-value">50<span class="stat-unit">개</span></div>
+                    <div class="stat-percentage">(50%)</div>
+                </div>
+                
+                <div class="stat-card achievement">
+                    <div class="stat-header">
+                        <span class="achievement-label">세로 (+2)</span>
+                    </div>
+                    <div class="stat-value">40<span class="stat-unit">개</span></div>
+                    <div class="stat-percentage">(40%)</div>
+                </div>
+                
+                <div class="stat-card achievement">
+                    <div class="stat-header">
+                        <span class="achievement-label">엑스 (+1)</span>
+                    </div>
+                    <div class="stat-value">10<span class="stat-unit">개</span></div>
+                    <div class="stat-percentage">(10%)</div>
+                </div>
+                
+                <div class="stat-card points">
+                    <div class="stat-label">이번달 상점</div>
+                    <div class="stat-value">253<span class="stat-unit">점</span></div>
+                    <div class="stat-percentage">(10%)</div>
+                </div>
+                
+                <div class="stat-card secondary">
+                    <div class="stat-label">가장 벌주 횟수</div>
+                    <div class="stat-value">7<span class="stat-unit">번</span></div>
+                </div>
+                
+                <div class="stat-card secondary">
+                    <div class="stat-label">챌린지 횟수</div>
+                    <div class="stat-value">24<span class="stat-unit">번</span></div>
+                </div>
+            </div>
+            
+            <!-- Top 5 Charts Section -->
+            <div class="charts-section">
+                <div class="chart-row">
+                    <div class="chart-card">
+                        <h3 class="chart-title">나의 Top 5 뽀모도로</h3>
+                        <div class="chart-container">
+                            <div class="donut-chart" id="pomodoroChart">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#F0F0F0" stroke-width="8"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#007AFF" stroke-width="8" 
+                                            stroke-dasharray="141" stroke-dashoffset="70" transform="rotate(-90 60 60)"
+                                            class="progress-circle"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#FF9500" stroke-width="8" 
+                                            stroke-dasharray="94" stroke-dashoffset="20" transform="rotate(90 60 60)"
+                                            class="progress-circle"/>
+                                </svg>
+                                <div class="chart-center">
+                                    <div class="chart-value">317</div>
+                                    <div class="chart-unit">kWh</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color blue"></span>
+                                    <span class="legend-text">64.4 kWh (20%) PV</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color orange"></span>
+                                    <span class="legend-text">69.88 kWh (22%) Grid</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color gray"></span>
+                                    <span class="legend-text">182.28 kWh (58%) Battery</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3 class="chart-title">나의 Top 5 스티커</h3>
+                        <div class="chart-container">
+                            <div class="donut-chart" id="stickerChart">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#F0F0F0" stroke-width="8"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#34C759" stroke-width="8" 
+                                            stroke-dasharray="141" stroke-dashoffset="70" transform="rotate(-90 60 60)"
+                                            class="progress-circle"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#FF3B30" stroke-width="8" 
+                                            stroke-dasharray="94" stroke-dashoffset="20" transform="rotate(90 60 60)"
+                                            class="progress-circle"/>
+                                </svg>
+                                <div class="chart-center">
+                                    <div class="chart-value">317</div>
+                                    <div class="chart-unit">kWh</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color green"></span>
+                                    <span class="legend-text">64.4 kWh (20%) PV</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color red"></span>
+                                    <span class="legend-text">69.88 kWh (22%) Grid</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color gray"></span>
+                                    <span class="legend-text">182.28 kWh (58%) Battery</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3 class="chart-title">나의 Top 5 챌린지</h3>
+                        <div class="chart-container">
+                            <div class="donut-chart" id="challengeChart">
+                                <svg width="120" height="120" viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#F0F0F0" stroke-width="8"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#5856D6" stroke-width="8" 
+                                            stroke-dasharray="141" stroke-dashoffset="70" transform="rotate(-90 60 60)"
+                                            class="progress-circle"/>
+                                    <circle cx="60" cy="60" r="45" fill="none" stroke="#AF52DE" stroke-width="8" 
+                                            stroke-dasharray="94" stroke-dashoffset="20" transform="rotate(90 60 60)"
+                                            class="progress-circle"/>
+                                </svg>
+                                <div class="chart-center">
+                                    <div class="chart-value">317</div>
+                                    <div class="chart-unit">kWh</div>
+                                </div>
+                            </div>
+                            <div class="chart-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color purple"></span>
+                                    <span class="legend-text">64.4 kWh (20%) PV</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color violet"></span>
+                                    <span class="legend-text">69.88 kWh (22%) Grid</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color gray"></span>
+                                    <span class="legend-text">182.28 kWh (58%) Battery</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Graph Section -->
+            <div class="graphs-section">
+                <div class="graph-row">
+                    <div class="graph-card large">
+                        <h3 class="graph-title">기간내 공부량 (기간내 공부량)</h3>
+                        <div class="graph-container">
+                            <canvas id="studyHoursChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="graph-card">
+                        <h3 class="graph-title">공부량 누적 그래프</h3>
+                        <div class="graph-container">
+                            <canvas id="cumulativeChart" width="200" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Date Range Modal -->
+        <div class="modal-overlay hidden" id="dateRangeModal">
+            <div class="date-range-modal">
+                <div class="modal-header">
+                    <button class="modal-cancel" id="dateRangeCancelBtn">취소</button>
+                    <h3 class="modal-title">기간 선택</h3>
+                    <button class="modal-confirm" id="dateRangeConfirmBtn">확인</button>
+                </div>
+                <div class="date-range-picker">
+                    <div class="date-input-group">
+                        <label>시작일</label>
+                        <input type="date" id="startDate" class="date-input">
+                    </div>
+                    <div class="date-input-group">
+                        <label>종료일</label>
+                        <input type="date" id="endDate" class="date-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="mypage-script.js"></script>
+</body>
+</html>

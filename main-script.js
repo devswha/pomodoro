@@ -1,37 +1,76 @@
 class MainDashboard {
     constructor() {
-        this.currentUser = null;
-        this.pomodoroTimer = null;
-        this.isTimerRunning = false;
-        this.timeRemaining = 25 * 60; // 25 minutes in seconds
+        console.log('🚀 MainDashboard 초기화 시작...');
         
-        this.initializeElements();
-        this.loadUserData();
-        this.attachEventListeners();
-        this.updateProgressCharts();
-        this.startTimeDisplay();
+        try {
+            this.currentUser = null;
+            this.pomodoroTimer = null;
+            this.isTimerRunning = false;
+            this.timeRemaining = 25 * 60; // 25 minutes in seconds
+            this.retryCount = 0; // 재시도 카운터
+            this.maxRetries = 3; // 최대 재시도 횟수
+            
+            this.initializeElements();
+            this.loadUserData();
+            this.attachEventListeners();
+            this.updateProgressCharts();
+            this.startTimeDisplay();
+            
+            console.log('🎉 MainDashboard 초기화 완료!');
+        } catch (error) {
+            console.error('💥 MainDashboard 초기화 중 오류 발생:', error);
+            alert('페이지 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+        }
     }
     
     initializeElements() {
-        // User header elements
-        this.userInitial = document.getElementById('userInitial');
-        this.userName = document.getElementById('userName');
-        this.logoutBtn = document.getElementById('logoutBtn');
+        console.log('🔍 초기화 시작 - DOM 요소들을 찾는 중...');
         
-        // Statistics elements
-        this.studyStatsBtn = document.getElementById('studyStatsBtn');
-        this.monthlyStatsBtn = document.getElementById('monthlyStatsBtn');
-        this.studyChart = document.getElementById('studyChart');
+        // 안전한 요소 찾기 함수
+        const safeGetElement = (id, description) => {
+            const element = document.getElementById(id);
+            if (element) {
+                console.log(`✅ ${description} 요소 찾음`);
+                return element;
+            } else {
+                console.error(`❌ ${id} 요소를 찾을 수 없습니다!`);
+                return null;
+            }
+        };
         
-        // Action cards
-        this.pomodoroStartCard = document.getElementById('pomodoroStartCard');
-        this.pomodoroRankingCard = document.getElementById('pomodoroRankingCard');
-        this.eventCard = document.getElementById('eventCard');
+        // 모든 요소를 안전하게 찾기
+        this.userInitial = safeGetElement('userInitial', '사용자 이니셜');
+        this.userName = safeGetElement('userName', '사용자 이름');
+        this.logoutBtn = safeGetElement('logoutBtn', '로그아웃 버튼');
+        this.studyStatsBtn = safeGetElement('studyStatsBtn', '학습 통계 버튼');
+        this.monthlyStatsBtn = safeGetElement('monthlyStatsBtn', '월별 기록 버튼');
+        this.studyChart = safeGetElement('studyChart', '학습 차트');
+        this.pomodoroStartCard = safeGetElement('pomodoroStartCard', '뽀모도로 시작 카드');
+        this.pomodoroRankingCard = safeGetElement('pomodoroRankingCard', '뽀모도로 랭킹 카드');
+        this.eventCard = safeGetElement('eventCard', '이벤트 카드');
+        this.pomodoroTime = safeGetElement('pomodoroTime', '뽀모도로 시간');
+        this.breakBtn = safeGetElement('breakBtn', '중단 버튼');
+        this.focusBtn = safeGetElement('focusBtn', '종료 버튼');
         
-        // Pomodoro elements
-        this.pomodoroTime = document.getElementById('pomodoroTime');
-        this.breakBtn = document.getElementById('breakBtn');
-        this.focusBtn = document.getElementById('focusBtn');
+        // 찾은 요소 수 계산
+        const allElements = [
+            this.userInitial, this.userName, this.logoutBtn, this.studyStatsBtn,
+            this.monthlyStatsBtn, this.studyChart, this.pomodoroStartCard,
+            this.pomodoroRankingCard, this.eventCard, this.pomodoroTime,
+            this.breakBtn, this.focusBtn
+        ];
+        
+        const foundCount = allElements.filter(element => element !== null).length;
+        console.log(`📊 총 ${foundCount}/12개의 DOM 요소를 찾았습니다.`);
+        
+        if (foundCount === 0) {
+            console.error('💥 모든 DOM 요소를 찾지 못했습니다!');
+            throw new Error('DOM 요소를 찾을 수 없습니다.');
+        } else if (foundCount < 12) {
+            console.warn(`⚠️ 일부 요소(${12 - foundCount}개)를 찾지 못했습니다.`);
+        } else {
+            console.log('✅ 모든 DOM 요소를 성공적으로 찾았습니다!');
+        }
     }
     
     loadUserData() {
@@ -82,34 +121,59 @@ class MainDashboard {
     }
     
     attachEventListeners() {
-        // User header buttons
-        this.logoutBtn.addEventListener('click', () => this.handleLogout());
+        console.log('🔗 이벤트 리스너 연결 시작...');
         
-        // Statistics buttons
-        this.studyStatsBtn.addEventListener('click', () => this.handleStudyStats());
-        this.monthlyStatsBtn.addEventListener('click', () => this.handleMonthlyStats());
+        // 안전한 이벤트 리스너 추가 함수
+        const safeAddEventListener = (elementId, eventType, handler, description) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.addEventListener(eventType, handler);
+                console.log(`✅ ${description} 이벤트 연결됨`);
+                return true;
+            } else {
+                console.error(`❌ ${elementId} 요소를 찾을 수 없습니다!`);
+                return false;
+            }
+        };
         
-        // Action cards
-        this.pomodoroStartCard.addEventListener('click', () => this.handlePomodoroStart());
-        this.pomodoroRankingCard.addEventListener('click', () => this.handlePomodoroRanking());
-        this.eventCard.addEventListener('click', () => this.handleEvent());
+        let successCount = 0;
         
-        // Pomodoro controls
-        this.breakBtn.addEventListener('click', () => this.handleBreak());
-        this.focusBtn.addEventListener('click', () => this.handleFocus());
+        // 모든 이벤트 리스너를 안전하게 연결
+        successCount += safeAddEventListener('logoutBtn', 'click', () => this.handleLogout(), '로그아웃 버튼') ? 1 : 0;
+        successCount += safeAddEventListener('studyStatsBtn', 'click', () => this.handleStudyStats(), '학습 통계 버튼') ? 1 : 0;
+        successCount += safeAddEventListener('monthlyStatsBtn', 'click', () => this.handleMonthlyStats(), '월별 기록 버튼') ? 1 : 0;
+        successCount += safeAddEventListener('pomodoroStartCard', 'click', () => this.handlePomodoroStart(), '뽀모도로 시작 카드') ? 1 : 0;
+        successCount += safeAddEventListener('pomodoroRankingCard', 'click', () => this.handlePomodoroRanking(), '뽀모도로 랭킹 카드') ? 1 : 0;
+        successCount += safeAddEventListener('eventCard', 'click', () => this.handleEvent(), '이벤트 카드') ? 1 : 0;
+        successCount += safeAddEventListener('breakBtn', 'click', () => this.handleBreak(), '중단 버튼') ? 1 : 0;
+        successCount += safeAddEventListener('focusBtn', 'click', () => this.handleFocus(), '종료 버튼') ? 1 : 0;
         
-        // Touch feedback for mobile
+        console.log(`📊 총 ${successCount}/8개의 이벤트 리스너가 성공적으로 연결되었습니다.`);
+        
+        if (successCount === 0) {
+            console.error('💥 모든 이벤트 리스너 연결에 실패했습니다!');
+            alert('페이지의 모든 버튼이 작동하지 않을 수 있습니다. 페이지를 새로고침해주세요.');
+        } else if (successCount < 8) {
+            console.warn(`⚠️ 일부 버튼(${8 - successCount}개)이 작동하지 않을 수 있습니다.`);
+        }
+        
+        // Touch feedback for mobile - 성공적으로 연결된 요소들만
         this.addTouchFeedback();
+        
+        console.log('🎉 이벤트 리스너 연결 완료!');
     }
     
     addTouchFeedback() {
+        console.log('📱 터치 피드백 설정 중...');
+        
         const interactiveElements = [
             this.logoutBtn, this.studyStatsBtn, this.monthlyStatsBtn,
             this.pomodoroStartCard, this.pomodoroRankingCard, this.eventCard,
             this.breakBtn, this.focusBtn
         ];
         
-        interactiveElements.forEach(element => {
+        let addedCount = 0;
+        interactiveElements.forEach((element, index) => {
             if (element) {
                 element.addEventListener('touchstart', (e) => {
                     element.style.transform = 'scale(0.98)';
@@ -121,8 +185,14 @@ class MainDashboard {
                         element.style.transform = '';
                     }, 100);
                 }, { passive: true });
+                
+                addedCount++;
+            } else {
+                console.warn(`⚠️ 터치 피드백 요소 ${index}가 null입니다.`);
             }
         });
+        
+        console.log(`✅ ${addedCount}개 요소에 터치 피드백 추가됨`);
     }
     
     updateProgressCharts() {
@@ -206,12 +276,13 @@ class MainDashboard {
     }
     
     handlePomodoroStart() {
-        this.showToast('뽀모도로 타이머를 시작합니다');
+        this.showToast('뽀모도로 시작 페이지로 이동합니다');
         this.addCardFeedback(this.pomodoroStartCard);
         
-        // Start pomodoro timer
-        this.startPomodoroTimer();
-        console.log('뽀모도로 시작');
+        // Navigate to pomodoro start page
+        setTimeout(() => {
+            window.location.href = `pomodoro-start.html?user=${encodeURIComponent(this.currentUser.id)}`;
+        }, 500);
     }
     
     handlePomodoroRanking() {
@@ -416,9 +487,20 @@ class MainDashboard {
     }
 }
 
-// Initialize dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize dashboard immediately since DOM is already loaded
+console.log('📄 MainDashboard 스크립트 로드됨! 초기화를 시작합니다...');
+
+try {
     const dashboard = new MainDashboard();
+    
+    // Global access for debugging
+    window.dashboard = dashboard;
+    
+    console.log('🌍 Global dashboard 변수 설정 완료 (디버깅용)');
+} catch (error) {
+    console.error('💥 MainDashboard 생성 중 오류:', error);
+    alert('메인 페이지 로드 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
+}
     
     // Handle page visibility changes
     document.addEventListener('visibilitychange', () => {
@@ -452,15 +534,5 @@ window.addEventListener('popstate', (e) => {
     // Handle navigation state
 });
 
-// Service worker registration for PWA features
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
+// Service worker registration disabled (no sw.js file)
+console.log('ℹ️ Service Worker 등록을 건너뜁니다 (sw.js 파일 없음)');
