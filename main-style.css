@@ -39,6 +39,8 @@ body {
     align-items: center;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     position: relative;
+    min-height: 92px;
+    flex-shrink: 0;
 }
 
 .user-info {
