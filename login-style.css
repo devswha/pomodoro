@@ -98,11 +98,12 @@ body {
     width: 100px;
     height: 100px;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .brand-image:hover {
     transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
 }
 
 /* Login Form */
