@@ -55,13 +55,13 @@ class LoginForm {
     }
     
     handleIdInput(e) {
-        this.loginId = e.target.value;
+        this.loginId = e.target.value.trim();
         this.removeInputError(e.target);
         this.updateLoginButtonState();
     }
     
     handlePasswordInput(e) {
-        this.loginPassword = e.target.value;
+        this.loginPassword = e.target.value.trim();
         this.removeInputError(e.target);
         this.updateLoginButtonState();
     }
@@ -146,21 +146,29 @@ class LoginForm {
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1500));
         
+        console.log('Login attempt:', { id: this.loginId, password: this.loginPassword });
+        
         // Check default test account
         if (this.loginId === 'test' && this.loginPassword === 'test') {
+            console.log('Default test account login successful');
             return { success: true, user: { id: this.loginId } };
         }
         
         // Check stored accounts from signup
         const accounts = JSON.parse(localStorage.getItem('testAccounts') || '[]');
+        console.log('Stored accounts:', accounts);
+        
         const validAccount = accounts.find(account => 
             account.id === this.loginId && account.password === this.loginPassword
         );
         
         if (validAccount) {
+            console.log('Stored account login successful');
             return { success: true, user: { id: validAccount.id } };
         } else {
-            throw new Error('아이디 또는 비밀번호가 일치하지 않습니다.');
+            console.log('Login failed - no matching account found');
+            console.log('Try test/test or create an account via signup');
+            throw new Error('아이디 또는 비밀번호가 일치하지 않습니다. test/test를 시도하거나 회원가입을 해주세요.');
         }
     }
     
