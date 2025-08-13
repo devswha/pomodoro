@@ -400,6 +400,13 @@ body {
     overflow-y: auto;
     scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+
+.time-wheel::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
 }
 
 .time-separator {
@@ -418,14 +425,32 @@ body {
     color: #8E8E93;
     cursor: pointer;
     scroll-snap-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
     min-width: 60px;
+    border-radius: 8px;
+    margin: 2px 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
-.time-option:hover,
+.time-option:hover {
+    color: #007AFF;
+    background: rgba(0, 122, 255, 0.1);
+    transform: scale(1.05);
+}
+
 .time-option.selected {
     color: #000000;
     font-weight: 600;
+    background: rgba(0, 122, 255, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.time-option:active {
+    transform: scale(0.95);
+    transition: all 0.1s ease;
 }
 
 /* Responsive Design */

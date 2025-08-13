@@ -187,6 +187,11 @@ class PomodoroStart {
             
             option.addEventListener('click', () => this.selectTimeOption('period', period, option));
         });
+
+        // Add smooth scrolling to time wheels
+        this.setupSmoothScrolling(this.hourWheel, 'hour');
+        this.setupSmoothScrolling(this.minuteWheel, 'minute');
+        this.setupSmoothScrolling(this.periodWheel, 'period');
     }
     
     selectTimeOption(type, value, element) {
@@ -237,6 +242,125 @@ class PomodoroStart {
         
         this.simulateHapticFeedback();
         this.showToast(this.is50MinuteMode ? '50분 모드 활성화' : '25분 모드로 전환', 'info');
+    }
+
+    setupSmoothScrolling(wheel, type) {
+        let isScrolling = false;
+        let scrollTimeout;
+        let startY = 0;
+        let currentY = 0;
+        
+        // Add momentum scrolling
+        wheel.addEventListener('scroll', () => {
+            if (!isScrolling) {
+                wheel.style.scrollBehavior = 'auto';
+                isScrolling = true;
+            }
+            
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                this.snapToNearestOption(wheel, type);
+                isScrolling = false;
+                wheel.style.scrollBehavior = 'smooth';
+            }, 150);
+        }, { passive: true });
+
+        // Add wheel event for better desktop experience
+        wheel.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const scrollDirection = e.deltaY > 0 ? 1 : -1;
+            const options = wheel.querySelectorAll('.time-option');
+            const currentIndex = this.getCurrentSelectedIndex(wheel, type);
+            let newIndex = currentIndex + scrollDirection;
+            
+            // Wrap around
+            if (newIndex < 0) newIndex = options.length - 1;
+            if (newIndex >= options.length) newIndex = 0;
+            
+            const newOption = options[newIndex];
+            if (newOption) {
+                const value = type === 'hour' ? parseInt(newOption.textContent) :
+                             type === 'minute' ? parseInt(newOption.textContent) :
+                             newOption.dataset.value;
+                this.selectTimeOption(type, value, newOption);
+                
+                // Smooth scroll to center the option
+                newOption.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'center'
+                });
+            }
+        }, { passive: false });
+
+        // Add touch/swipe support for mobile
+        wheel.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            wheel.style.scrollBehavior = 'auto';
+        }, { passive: true });
+        
+        wheel.addEventListener('touchmove', (e) => {
+            currentY = e.touches[0].clientY;
+            const deltaY = startY - currentY;
+            wheel.scrollTop += deltaY * 0.6; // Smooth factor
+            startY = currentY;
+        }, { passive: true });
+        
+        wheel.addEventListener('touchend', () => {
+            setTimeout(() => {
+                this.snapToNearestOption(wheel, type);
+                wheel.style.scrollBehavior = 'smooth';
+            }, 100);
+        }, { passive: true });
+    }
+
+    getCurrentSelectedIndex(wheel, type) {
+        const options = wheel.querySelectorAll('.time-option');
+        const currentValue = type === 'hour' ? this.selectedTime.hour :
+                           type === 'minute' ? this.selectedTime.minute :
+                           this.selectedTime.period;
+        
+        for (let i = 0; i < options.length; i++) {
+            const optionValue = type === 'hour' ? parseInt(options[i].textContent) :
+                               type === 'minute' ? parseInt(options[i].textContent) :
+                               options[i].dataset.value;
+            if (optionValue === currentValue) return i;
+        }
+        return 0;
+    }
+
+    snapToNearestOption(wheel, type) {
+        const options = wheel.querySelectorAll('.time-option');
+        const wheelRect = wheel.getBoundingClientRect();
+        const wheelCenter = wheelRect.top + wheelRect.height / 2;
+        
+        let closestOption = null;
+        let closestDistance = Infinity;
+        
+        options.forEach(option => {
+            const optionRect = option.getBoundingClientRect();
+            const optionCenter = optionRect.top + optionRect.height / 2;
+            const distance = Math.abs(wheelCenter - optionCenter);
+            
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestOption = option;
+            }
+        });
+        
+        if (closestOption) {
+            const value = type === 'hour' ? parseInt(closestOption.textContent) :
+                         type === 'minute' ? parseInt(closestOption.textContent) :
+                         closestOption.dataset.value;
+            this.selectTimeOption(type, value, closestOption);
+            
+            // Smooth scroll to center
+            closestOption.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'center'
+            });
+        }
     }
     
     // Date picker functions
