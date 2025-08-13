@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Stepper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="login-style.css">
+</head>
+<body>
+    <div class="iphone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons">
+                <div class="notch"></div>
+                <div class="right-icons">
+                    <span class="signal">📶</span>
+                    <span class="wifi">📶</span>
+                    <span class="battery">🔋</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-header">
+            <h1 class="app-title">Stepper</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Section -->
+            <div class="top-section">
+                <div class="signup-prompt">
+                    <span class="prompt-text">처음 방문하셨나요?</span>
+                    <button class="signup-link">
+                        <span>회원가입 하러가기</span>
+                        <span class="arrow">›</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div class="login-section">
+                <h2 class="login-title">로그인</h2>
+
+                <!-- Login Form -->
+                <div class="login-form">
+                    <!-- ID Input -->
+                    <div class="input-group">
+                        <label class="input-label">아이디</label>
+                        <input 
+                            type="text" 
+                            class="input-field" 
+                            placeholder="아이디 혹은 휴대폰 번호"
+                            id="loginId"
+                        >
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="input-group">
+                        <label class="input-label">비밀번호</label>
+                        <input 
+                            type="password" 
+                            class="input-field" 
+                            placeholder="비밀번호 입력 칸"
+                            id="loginPassword"
+                        >
+                    </div>
+
+                    <!-- Forgot Links -->
+                    <div class="forgot-links">
+                        <button class="forgot-link" id="forgotId">
+                            <span>아이디 찾기</span>
+                            <span class="arrow">›</span>
+                        </button>
+                        <button class="forgot-link" id="forgotPassword">
+                            <span>비밀번호 찾기</span>
+                            <span class="arrow">›</span>
+                        </button>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button class="login-button" id="loginButton" disabled>
+                        로그인
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"></div>
+    </div>
+
+    <script src="login-script.js"></script>
+</body>
+</html>
