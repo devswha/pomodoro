@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - Stepper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="signup-style.css">
+</head>
+<body>
+    <div class="iphone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons">
+                <div class="notch"></div>
+                <div class="right-icons">
+                    <span class="signal">📶</span>
+                    <span class="wifi">📶</span>
+                    <span class="battery">🔋</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Header -->
+        <div class="nav-header">
+            <button class="nav-back" id="backBtn">
+                <span>‹</span>
+                <span class="nav-text">뒤로가기</span>
+            </button>
+            <button class="nav-next" id="nextBtn" disabled>
+                <span class="nav-text">다음</span>
+                <span>›</span>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="header-section">
+                <h1 class="page-title">회원가입</h1>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <span id="currentStep">1</span> / 3
+                </div>
+
+                <!-- Step 1: ID -->
+                <div class="step-content" id="step1">
+                    <div class="input-group" id="idGroup">
+                        <div class="input-header">
+                            <label class="input-label">아이디</label>
+                            <span class="validation-icon" id="idIcon"></span>
+                        </div>
+                        <input 
+                            type="text" 
+                            class="input-field" 
+                            placeholder="사용할 아이디를 입력하세요"
+                            id="idInput"
+                        >
+                        <div class="input-description" id="idDescription">
+                            4-20자, 영문/숫자만 사용 가능
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Password -->
+                <div class="step-content hidden" id="step2">
+                    <div class="input-group" id="passwordGroup">
+                        <div class="input-header">
+                            <label class="input-label">비밀번호</label>
+                            <span class="validation-icon" id="passwordIcon"></span>
+                        </div>
+                        <input 
+                            type="password" 
+                            class="input-field" 
+                            placeholder="안전한 비밀번호를 설정하세요"
+                            id="passwordInput"
+                        >
+                        <div class="input-description" id="passwordDescription">
+                            8자 이상, 영문/숫자/특수문자 포함
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Password Confirmation -->
+                <div class="step-content hidden" id="step3">
+                    <div class="input-group" id="confirmPasswordGroup">
+                        <div class="input-header">
+                            <label class="input-label">비밀번호 확인</label>
+                            <span class="validation-icon" id="confirmPasswordIcon"></span>
+                        </div>
+                        <input 
+                            type="password" 
+                            class="input-field" 
+                            placeholder="비밀번호를 다시 입력해주세요"
+                            id="confirmPasswordInput"
+                        >
+                        <div class="input-description" id="confirmPasswordDescription">
+                            동일한 비밀번호를 입력해주세요
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complete Button -->
+                <button class="complete-button hidden" id="completeBtn">
+                    회원가입 완료
+                </button>
+            </div>
+        </div>
+
+        <!-- Keyboard Suggestions (Hidden by default) -->
+        <div class="keyboard-suggestions hidden" id="keyboardSuggestions">
+            <div class="suggestion-items">
+                <span class="suggestion-item active">"The"</span>
+                <span class="suggestion-item">the</span>
+                <span class="suggestion-item">to</span>
+            </div>
+        </div>
+
+        <!-- Virtual Keyboard (Hidden by default) -->
+        <div class="virtual-keyboard hidden" id="virtualKeyboard">
+            <div class="keyboard-row">
+                <button class="key" data-key="q">q</button>
+                <button class="key" data-key="w">w</button>
+                <button class="key" data-key="e">e</button>
+                <button class="key" data-key="r">r</button>
+                <button class="key" data-key="t">t</button>
+                <button class="key" data-key="y">y</button>
+                <button class="key" data-key="u">u</button>
+                <button class="key" data-key="i">i</button>
+                <button class="key" data-key="o">o</button>
+                <button class="key" data-key="p">p</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key" data-key="a">a</button>
+                <button class="key" data-key="s">s</button>
+                <button class="key" data-key="d">d</button>
+                <button class="key" data-key="f">f</button>
+                <button class="key" data-key="g">g</button>
+                <button class="key" data-key="h">h</button>
+                <button class="key" data-key="j">j</button>
+                <button class="key" data-key="k">k</button>
+                <button class="key" data-key="l">l</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key shift" data-key="shift">⇧</button>
+                <button class="key" data-key="z">z</button>
+                <button class="key" data-key="x">x</button>
+                <button class="key" data-key="c">c</button>
+                <button class="key" data-key="v">v</button>
+                <button class="key" data-key="b">b</button>
+                <button class="key" data-key="n">n</button>
+                <button class="key" data-key="m">m</button>
+                <button class="key backspace" data-key="backspace">⌫</button>
+            </div>
+            <div class="keyboard-row">
+                <button class="key function">123</button>
+                <button class="key space" data-key=" ">space</button>
+                <button class="key function" data-key="return">return</button>
+            </div>
+        </div>
+
+        <!-- Bottom Icons (Hidden when keyboard is visible) -->
+        <div class="bottom-icons" id="bottomIcons">
+            <button class="bottom-icon">😊</button>
+            <button class="bottom-icon mic">🎤</button>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"></div>
+    </div>
+
+    <script src="new-signup-script.js"></script>
+</body>
+</html>

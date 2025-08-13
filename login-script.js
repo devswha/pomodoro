@@ -214,8 +214,8 @@ class LoginForm {
         this.signupLink.style.opacity = '0.5';
         setTimeout(() => {
             this.signupLink.style.opacity = '';
-            // Navigate to signup page
-            window.location.href = 'index.html';
+            // Navigate to new signup page
+            window.location.href = 'signup.html';
         }, 150);
     }
     
