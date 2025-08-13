@@ -129,10 +129,10 @@ class LoginForm {
             // Success feedback
             this.showSuccessFeedback();
             
-            // Navigate to dashboard (simulate)
+            // Navigate to main dashboard
             setTimeout(() => {
-                console.log('로그인 성공 - 대시보드로 이동');
-                // window.location.href = '/dashboard';
+                console.log('로그인 성공 - 메인 페이지로 이동');
+                window.location.href = `main.html?user=${encodeURIComponent(this.loginId)}`;
             }, 1000);
             
         } catch (error) {

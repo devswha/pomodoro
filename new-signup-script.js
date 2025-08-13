@@ -489,9 +489,9 @@ class NewSignupFlow {
             // Show success feedback
             this.showSuccessMessage();
             
-            // Navigate to login page
+            // Navigate to main page with auto login
             setTimeout(() => {
-                window.location.href = 'index.html';
+                window.location.href = `main.html?user=${encodeURIComponent(this.formData.id)}`;
             }, 2000);
             
         } catch (error) {

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메인 페이지 - Stepper</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="main-style.css">
+</head>
+<body>
+    <div class="iphone-container">
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <div class="status-icons">
+                <div class="notch"></div>
+                <div class="right-icons">
+                    <span class="signal">📶</span>
+                    <span class="wifi">📶</span>
+                    <span class="battery">🔋</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-header">
+            <h1 class="app-title">메인 페이지</h1>
+            <div class="header-actions">
+                <button class="header-action settings" id="settingsBtn">설정</button>
+                <button class="header-action menu" id="menuBtn">메뉴</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Statistics Cards -->
+            <div class="stats-section">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">학습 통계</h3>
+                        <button class="stat-link" id="studyStatsBtn">자세히></button>
+                    </div>
+                    <div class="chart-container">
+                        <div class="progress-chart" id="studyChart">
+                            <svg width="120" height="120" viewBox="0 0 120 120">
+                                <circle 
+                                    cx="60" cy="60" r="45" 
+                                    fill="none" 
+                                    stroke="#F0F0F0" 
+                                    stroke-width="10"
+                                />
+                                <!-- Purple segment -->
+                                <circle 
+                                    cx="60" cy="60" r="45" 
+                                    fill="none" 
+                                    stroke="#6B46C1" 
+                                    stroke-width="10" 
+                                    stroke-linecap="round"
+                                    stroke-dasharray="141.37"
+                                    stroke-dashoffset="70.68"
+                                    transform="rotate(-90 60 60)"
+                                    class="progress-segment progress-purple"
+                                />
+                                <!-- Orange segment -->
+                                <circle 
+                                    cx="60" cy="60" r="45" 
+                                    fill="none" 
+                                    stroke="#F97316" 
+                                    stroke-width="10" 
+                                    stroke-linecap="round"
+                                    stroke-dasharray="94.25"
+                                    stroke-dashoffset="0"
+                                    transform="rotate(90 60 60)"
+                                    class="progress-segment progress-orange"
+                                />
+                            </svg>
+                            <div class="chart-center">
+                                <div class="chart-value">75%</div>
+                                <div class="chart-label">완료</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <h3 class="stat-title">월별 기록</h3>
+                        <button class="stat-link" id="monthlyStatsBtn">자세히></button>
+                    </div>
+                    <div class="chart-placeholder">
+                        <span class="placeholder-text"><달력 이미지></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Cards -->
+            <div class="actions-section">
+                <div class="action-card" id="pomodoroStartCard">
+                    <h3 class="action-title">뽀모도로 시작하기</h3>
+                    <div class="action-description">집중력 향상을 위한 시간 관리 기법</div>
+                </div>
+
+                <div class="action-card" id="pomodoroRankingCard">
+                    <h3 class="action-title">뽀모도로 랭킹</h3>
+                    <div class="action-description">다른 사용자들과 비교해보세요</div>
+                </div>
+
+                <div class="action-card" id="eventCard">
+                    <h3 class="action-title">진행중인 이벤트</h3>
+                    <div class="action-description">특별한 혜택과 도전 과제</div>
+                </div>
+            </div>
+
+            <!-- Today's Pomodoro -->
+            <div class="today-section">
+                <h2 class="today-title">진행중인 뽀모도로</h2>
+                <div class="today-pomodoro">
+                    <div class="pomodoro-time" id="pomodoroTime">09:30 AM</div>
+                    <div class="pomodoro-actions">
+                        <button class="pomodoro-btn break" id="breakBtn">중단</button>
+                        <button class="pomodoro-btn focus" id="focusBtn">종료</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Indicator -->
+        <div class="home-indicator"></div>
+    </div>
+
+    <script src="main-script.js"></script>
+</body>
+</html>
