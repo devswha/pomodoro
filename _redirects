@@ -1,0 +1,7 @@
+# SPA routing for signup and login pages
+/signup     /index.html     200
+/login      /login.html     200
+/           /login.html     200
+
+# Fallback for any other routes
+/*          /login.html     404
