@@ -13,6 +13,11 @@ class MainDashboard {
     }
     
     initializeElements() {
+        // User header elements
+        this.userInitial = document.getElementById('userInitial');
+        this.userName = document.getElementById('userName');
+        this.logoutBtn = document.getElementById('logoutBtn');
+        
         // Statistics elements
         this.studyStatsBtn = document.getElementById('studyStatsBtn');
         this.monthlyStatsBtn = document.getElementById('monthlyStatsBtn');
@@ -45,9 +50,41 @@ class MainDashboard {
         
         // Store current user
         localStorage.setItem('currentUser', userId);
+        
+        // Update user display
+        this.updateUserDisplay();
+    }
+    
+    updateUserDisplay() {
+        if (this.currentUser && this.currentUser.id) {
+            // Update user name
+            this.userName.textContent = this.currentUser.id;
+            
+            // Update user initial (first letter of username, uppercase)
+            const initial = this.currentUser.id.charAt(0).toUpperCase();
+            this.userInitial.textContent = initial;
+            
+            // Generate consistent color based on username
+            const colors = [
+                'linear-gradient(135deg, #007AFF, #5856D6)',
+                'linear-gradient(135deg, #34C759, #32D74B)', 
+                'linear-gradient(135deg, #FF9500, #FF6B00)',
+                'linear-gradient(135deg, #FF3B30, #D70015)',
+                'linear-gradient(135deg, #5856D6, #AF52DE)',
+                'linear-gradient(135deg, #00C7BE, #5856D6)'
+            ];
+            
+            const colorIndex = this.currentUser.id.length % colors.length;
+            if (this.userInitial.parentElement) {
+                this.userInitial.parentElement.style.background = colors[colorIndex];
+            }
+        }
     }
     
     attachEventListeners() {
+        // User header buttons
+        this.logoutBtn.addEventListener('click', () => this.handleLogout());
+        
         // Statistics buttons
         this.studyStatsBtn.addEventListener('click', () => this.handleStudyStats());
         this.monthlyStatsBtn.addEventListener('click', () => this.handleMonthlyStats());
@@ -67,7 +104,7 @@ class MainDashboard {
     
     addTouchFeedback() {
         const interactiveElements = [
-            this.studyStatsBtn, this.monthlyStatsBtn,
+            this.logoutBtn, this.studyStatsBtn, this.monthlyStatsBtn,
             this.pomodoroStartCard, this.pomodoroRankingCard, this.eventCard,
             this.breakBtn, this.focusBtn
         ];
@@ -132,6 +169,25 @@ class MainDashboard {
     }
     
     // Event handlers
+    handleLogout() {
+        this.addButtonFeedback(this.logoutBtn);
+        
+        // Show confirmation
+        const confirmed = confirm('로그아웃하시겠습니까?');
+        if (confirmed) {
+            // Clear user data
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userStats');
+            
+            // Show logout message
+            this.showToast('로그아웃되었습니다', 'info');
+            
+            // Redirect to login page
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+    }
     
     handleStudyStats() {
         this.showToast('학습 통계 상세 페이지로 이동합니다');
