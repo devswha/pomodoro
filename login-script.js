@@ -144,11 +144,21 @@ class LoginForm {
     
     async simulateLogin() {
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Simulate login validation
-        if (this.loginId.includes('test') && this.loginPassword.includes('test')) {
+        // Check default test account
+        if (this.loginId === 'test' && this.loginPassword === 'test') {
             return { success: true, user: { id: this.loginId } };
+        }
+        
+        // Check stored accounts from signup
+        const accounts = JSON.parse(localStorage.getItem('testAccounts') || '[]');
+        const validAccount = accounts.find(account => 
+            account.id === this.loginId && account.password === this.loginPassword
+        );
+        
+        if (validAccount) {
+            return { success: true, user: { id: validAccount.id } };
         } else {
             throw new Error('아이디 또는 비밀번호가 일치하지 않습니다.');
         }

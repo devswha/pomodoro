@@ -141,13 +141,9 @@ class NewSignupFlow {
     }
     
     validatePassword(password) {
-        const minLength = password.length >= 8;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChar = /[!@#$%^&*(),.?\":{}|<>]/.test(password);
-        
-        return minLength && hasUpperCase && hasLowerCase && (hasNumbers || hasSpecialChar);
+        // Simplified password validation - just minimum length
+        const minLength = password.length >= 4;
+        return minLength;
     }
     
     validateConfirmPassword(confirmPassword, originalPassword) {
@@ -204,11 +200,11 @@ class NewSignupFlow {
                 this.passwordIcon,
                 this.passwordDescription,
                 isValid,
-                '안전한 비밀번호입니다',
-                '8자 이상, 영문 대소문자, 숫자/특수문자 포함 필요'
+                '사용 가능한 비밀번호입니다',
+                '4자 이상 입력해주세요'
             );
         } else {
-            this.resetValidationState(this.passwordGroup, this.passwordIcon, this.passwordDescription, '8자 이상, 영문/숫자/특수문자 포함');
+            this.resetValidationState(this.passwordGroup, this.passwordIcon, this.passwordDescription, '4자 이상 입력해주세요');
         }
         
         this.updateProgress();
@@ -503,13 +499,22 @@ class NewSignupFlow {
     
     async simulateSignup() {
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // Simulate random success/failure
-        if (Math.random() > 0.1) { // 90% success rate
+        // Store test account and always succeed
+        if (this.formData.id && this.formData.password) {
+            // Store account in localStorage for future login
+            const accounts = JSON.parse(localStorage.getItem('testAccounts') || '[]');
+            accounts.push({
+                id: this.formData.id,
+                password: this.formData.password,
+                createdAt: new Date().toISOString()
+            });
+            localStorage.setItem('testAccounts', JSON.stringify(accounts));
+            
             return { success: true, userId: this.formData.id };
         } else {
-            throw new Error('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+            throw new Error('회원가입 정보가 올바르지 않습니다.');
         }
     }
     
