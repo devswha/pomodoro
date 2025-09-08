@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../../../lib/contexts/UserContext';
 
 const MainContainer = styled.div`
   height: 100%;
@@ -431,8 +433,123 @@ const PomodoroButton = styled.button`
   }
 `;
 
-function MainPage() {
-  const navigate = useNavigate();
+const MeetingCard = styled.div`
+  border: 2px solid #e9ecef;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #000000;
+  }
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const MeetingTitle = styled.h4`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const MeetingTime = styled.div`
+  font-size: 0.75rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+`;
+
+const MeetingLocation = styled.div`
+  font-size: 0.75rem;
+  color: #6c757d;
+`;
+
+const NoMeetings = styled.div`
+  padding: 2rem;
+  text-align: center;
+  border: 2px solid #e9ecef;
+  color: #6c757d;
+`;
+
+const NoMeetingsText = styled.div`
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+`;
+
+const NoMeetingsSubtitle = styled.div`
+  font-size: 0.875rem;
+  color: #6c757d;
+`;
+
+// UpcomingMeetings Component
+const UpcomingMeetings = () => {
+  const { currentUser, userManager } = useUser();
+  const [upcomingMeetings, setUpcomingMeetings] = useState([]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentUser && userManager) {
+      const meetings = userManager.getUpcomingMeetings(currentUser.id, 3);
+      setUpcomingMeetings(meetings);
+    }
+  }, [currentUser, userManager]);
+
+  const formatDateTime = (date, time) => {
+    const meetingDate = new Date(date);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    
+    let dateStr = '';
+    if (meetingDate.toDateString() === today.toDateString()) {
+      dateStr = '오늘';
+    } else if (meetingDate.toDateString() === tomorrow.toDateString()) {
+      dateStr = '내일';
+    } else {
+      dateStr = meetingDate.toLocaleDateString('ko-KR', { 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    return `${dateStr} ${time}`;
+  };
+
+  if (upcomingMeetings.length === 0) {
+    return (
+      <NoMeetings>
+        <NoMeetingsText>예정된 모임이 없습니다</NoMeetingsText>
+        <NoMeetingsSubtitle>모임 일정을 추가해보세요!</NoMeetingsSubtitle>
+      </NoMeetings>
+    );
+  }
+
+  return (
+    <div>
+      {upcomingMeetings.map(meeting => (
+        <MeetingCard 
+          key={meeting.id}
+          onClick={() => router.push('/meetings')}
+        >
+          <MeetingTitle>{meeting.title}</MeetingTitle>
+          <MeetingTime>{formatDateTime(meeting.date, meeting.time)}</MeetingTime>
+          {meeting.location && (
+            <MeetingLocation>📍 {meeting.location}</MeetingLocation>
+          )}
+        </MeetingCard>
+      ))}
+    </div>
+  );
+};
+
+export default function MainPage() {
+  const router = useRouter();
   const { currentUser, activeSession, logoutUser, getUserStats, completePomodoroSession, stopPomodoroSession } = useUser();
   const [userStats, setUserStats] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -493,23 +610,23 @@ function MainPage() {
 
   const handleLogout = () => {
     logoutUser();
-    navigate('/login');
+    router.push('/login');
   };
 
   const handleStudyStats = () => {
-    navigate('/mypage');
+    router.push('/mypage');
   };
 
   const handleMonthlyStats = () => {
-    navigate('/monthly');
+    router.push('/monthly');
   };
 
   const handlePomodoroStart = () => {
-    navigate('/pomodoro-start');
+    router.push('/pomodoro-start');
   };
 
   const handlePomodoroRanking = () => {
-    navigate('/pomodoro-ranking');
+    router.push('/pomodoro-ranking');
   };
 
   const handleEvent = () => {
@@ -555,10 +672,10 @@ function MainPage() {
           </UserDetails>
         </UserInfo>
         <HeaderButtons>
-          <OnboardingButton onClick={() => navigate('/dashboard-onboarding')}>
+          <OnboardingButton onClick={() => router.push('/dashboard-onboarding')}>
             온보딩
           </OnboardingButton>
-          <HeaderButton onClick={() => navigate('/onboarding')}>
+          <HeaderButton onClick={() => router.push('/onboarding')}>
             사용법
           </HeaderButton>
           <HeaderButton onClick={handleLogout}>로그아웃</HeaderButton>
@@ -626,6 +743,11 @@ function MainPage() {
             <ActionTitle>진행중인 이벤트</ActionTitle>
             <ActionDescription>특별한 혜택과 도전 과제</ActionDescription>
           </ActionCard>
+
+          <ActionCard onClick={() => router.push('/meetings')}>
+            <ActionTitle>모임 일정</ActionTitle>
+            <ActionDescription>모임 일정을 확인하고 관리하세요</ActionDescription>
+          </ActionCard>
         </ActionsSection>
 
         <TodaySection>
@@ -658,9 +780,13 @@ function MainPage() {
             </ActiveSession>
           )}
         </TodaySection>
+
+        <TodaySection>
+          <TodayTitle>다가오는 모임</TodayTitle>
+          <UpcomingMeetings />
+        </TodaySection>
       </MainContent>
     </MainContainer>
   );
 }
 
-export default MainPage;

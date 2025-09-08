@@ -8,6 +8,9 @@ import PomodoroStartPage from './pages/PomodoroStartPage';
 import PomodoroRankingPage from './pages/PomodoroRankingPage';
 import MyPage from './pages/MyPage';
 import MonthlyPage from './pages/MonthlyPage';
+import OnboardingPage from './pages/OnboardingPage';
+import DashboardOnboardingPage from './pages/DashboardOnboardingPage';
+import FullSchedulePage from './pages/FullSchedulePage';
 import { useUser } from './contexts/UserContext';
 
 const AppContainer = styled.div`
@@ -64,6 +67,18 @@ function App() {
           <Route 
             path="/monthly" 
             element={currentUser ? <MonthlyPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/onboarding" 
+            element={currentUser ? <OnboardingPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/dashboard-onboarding" 
+            element={currentUser ? <DashboardOnboardingPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/full-schedule" 
+            element={currentUser ? <FullSchedulePage /> : <Navigate to="/login" />} 
           />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>

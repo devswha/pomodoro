@@ -103,3 +103,5 @@ public
 
 # Figma MCP Context (내장 git 레포지토리)
 Figma-Context-MCP/
+# Local Netlify folder
+.netlify
