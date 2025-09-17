@@ -1,6 +1,6 @@
 [build]
   publish = "out"
-  command = "npm run build"
+  command = "npm run build:api"
   functions = "netlify/functions"
 
 [build.processing]
@@ -22,69 +22,8 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Handle static routing for Next.js App Router
-# Try exact path first, then fallback to SPA routing
-[[redirects]]
-  from = "/login"
-  to = "/login/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/signup"
-  to = "/signup/index.html"  
-  status = 200
-
-[[redirects]]
-  from = "/main"
-  to = "/main/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/meetings"
-  to = "/meetings/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/mypage"
-  to = "/mypage/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/pomodoro-ranking"
-  to = "/pomodoro-ranking/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/pomodoro-start"
-  to = "/pomodoro-start/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/monthly"
-  to = "/monthly/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/full-schedule"
-  to = "/full-schedule/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/onboarding"
-  to = "/onboarding/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/dashboard-onboarding"
-  to = "/dashboard-onboarding/index.html"
-  status = 200
-
-[[redirects]]
-  from = "/clear-data"
-  to = "/clear-data/index.html"
-  status = 200
-
-# Fallback for SPA routing - must be last
+# Handle Next.js App Router routing
+# All non-API routes fall back to Next.js routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
