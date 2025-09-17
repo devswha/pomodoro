@@ -22,8 +22,31 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Handle Next.js App Router SPA routing
-# All routes should fall back to index.html for client-side routing
+# Handle Next.js App Router routes - serve static files first, then SPA fallback
+
+# Serve static assets directly
+[[redirects]]
+  from = "/_next/*"
+  to = "/_next/:splat"
+  status = 200
+
+# Handle specific Next.js routes
+[[redirects]]
+  from = "/login/"
+  to = "/login/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/signup/"
+  to = "/signup/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/main/"
+  to = "/main/index.html"
+  status = 200
+
+# SPA fallback for all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
