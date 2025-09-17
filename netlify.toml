@@ -22,55 +22,8 @@
   to = "/.netlify/functions/api/:splat"
   status = 200
 
-# Handle Next.js App Router routing with proper fallbacks
-# Specific routes first
-[[redirects]]
-  from = "/login"
-  to = "/login.html"
-  status = 200
-
-[[redirects]]
-  from = "/signup"
-  to = "/signup.html"
-  status = 200
-
-[[redirects]]
-  from = "/main"
-  to = "/main.html"
-  status = 200
-
-[[redirects]]
-  from = "/meetings"
-  to = "/meetings.html"
-  status = 200
-
-[[redirects]]
-  from = "/mypage"
-  to = "/mypage.html"
-  status = 200
-
-[[redirects]]
-  from = "/pomodoro-ranking"
-  to = "/pomodoro-ranking.html"
-  status = 200
-
-[[redirects]]
-  from = "/monthly"
-  to = "/monthly.html"
-  status = 200
-
-[[redirects]]
-  from = "/clear-data"
-  to = "/clear-data.html"
-  status = 200
-
-# Root route to index.html
-[[redirects]]
-  from = "/"
-  to = "/index.html"
-  status = 200
-
-# Catch-all for SPA routing - any other route falls back to index
+# Handle Next.js App Router SPA routing
+# All routes should fall back to index.html for client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
