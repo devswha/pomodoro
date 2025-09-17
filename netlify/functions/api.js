@@ -114,7 +114,7 @@ export const handler = async (event, context) => {
     try {
       // Try to resolve the exact route path
       const segments = apiPath.split('/');
-      let modulePath = '../../app/api';
+      let modulePath = '../../api_backup';
       
       // Handle dynamic routes like [sessionId] or [meetingId]
       const resolvedSegments = [];

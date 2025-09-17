@@ -1,0 +1,16 @@
+# Static routes for Next.js App Router export
+/login /login/index.html 200
+/signup /signup/index.html 200
+/main /main/index.html 200
+/meetings /meetings/index.html 200
+/mypage /mypage/index.html 200
+/pomodoro-ranking /pomodoro-ranking/index.html 200
+/pomodoro-start /pomodoro-start/index.html 200
+/monthly /monthly/index.html 200
+/full-schedule /full-schedule/index.html 200
+/onboarding /onboarding/index.html 200
+/dashboard-onboarding /dashboard-onboarding/index.html 200
+/clear-data /clear-data/index.html 200
+
+# SPA fallback - must be last
+/* /index.html 200

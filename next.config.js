@@ -3,25 +3,15 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
-  // Configure for hybrid deployment: static pages + serverless API routes
-  output: (process.env.NODE_ENV === 'production' && process.env.BUILD_TYPE === 'static') ? 'export' : undefined,
+  // Configure for Netlify deployment - static export for pages only
+  output: 'export',
   trailingSlash: true,
-  distDir: 'out',
   images: {
     unoptimized: true,
   },
-  // API routes configuration for Netlify Functions (only for non-static builds)
-  async rewrites() {
-    if (process.env.NODE_ENV === 'production' && process.env.BUILD_TYPE === 'static') {
-      return [];
-    }
-    return [
-      {
-        source: '/api/:path*',
-        destination: '/.netlify/functions/api/:path*',
-      },
-    ];
-  },
+  // API routes will be handled separately via Netlify Functions
+  // Remove API routes rewrites for static export
+  // API routes will be handled by netlify.toml redirects
   // Environment variables for API routes
   env: {
     CUSTOM_KEY: 'my-value',
@@ -57,10 +47,7 @@ const nextConfig = {
   swcMinify: true,
   poweredByHeader: false,
   
-  // Configure static export exclusions (exclude API routes from static build)
-  ...((process.env.NODE_ENV === 'production' && process.env.BUILD_TYPE === 'static') ? {
-    trailingSlash: true,
-  } : {})
+  // Static export configuration
 }
 
 export default nextConfig;
