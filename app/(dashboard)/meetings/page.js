@@ -577,13 +577,17 @@ export default function MeetingsPage() {
   const [meetings, setMeetings] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
+  const [inviteUsername, setInviteUsername] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     date: '',
     time: '',
     location: '',
     attendees: '',
-    description: ''
+    description: '',
+    visibility: 'private'
   });
 
   // Load meetings from localStorage
@@ -640,6 +644,48 @@ export default function MeetingsPage() {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Handle invite user to meeting
+  const handleInviteUser = async () => {
+    if (!inviteUsername.trim()) {
+      alert('사용자명을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await fetch('/api/meetings/participants', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          meeting_id: selectedMeetingId,
+          username: inviteUsername
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(`${inviteUsername}님을 모임에 초대했습니다!`);
+        setInviteUsername('');
+        setShowInviteModal(false);
+      } else {
+        alert(result.error || '초대에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Invite error:', error);
+      alert('초대 중 오류가 발생했습니다.');
+    }
+  };
+
+  // Open invite modal
+  const handleOpenInviteModal = (meetingId) => {
+    setSelectedMeetingId(meetingId);
+    setShowInviteModal(true);
   };
 
   const handleSaveMeeting = () => {
@@ -797,6 +843,23 @@ export default function MeetingsPage() {
                 {meeting.description && (
                   <MeetingDescription>{meeting.description}</MeetingDescription>
                 )}
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                  <button
+                    onClick={() => handleOpenInviteModal(meeting.id)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#000',
+                      color: '#fff',
+                      border: 'none',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}
+                  >
+                    팀원 초대
+                  </button>
+                </div>
               </MeetingCard>
             ))
           )}
@@ -874,6 +937,34 @@ export default function MeetingsPage() {
             <ModalButtons>
               <ModalButton onClick={handleCloseModal}>취소</ModalButton>
               <ModalButton primary onClick={handleSaveMeeting}>저장</ModalButton>
+            </ModalButtons>
+          </Modal>
+        </ModalOverlay>
+      )}
+
+      {showInviteModal && (
+        <ModalOverlay onClick={() => setShowInviteModal(false)}>
+          <Modal onClick={(e) => e.stopPropagation()}>
+            <ModalTitle>팀원 초대</ModalTitle>
+
+            <FormGroup>
+              <FormLabel htmlFor="inviteUsername">사용자명</FormLabel>
+              <FormInput
+                id="inviteUsername"
+                type="text"
+                value={inviteUsername}
+                onChange={(e) => setInviteUsername(e.target.value)}
+                placeholder="초대할 사용자의 아이디를 입력하세요"
+              />
+            </FormGroup>
+
+            <ModalButtons>
+              <ModalButton onClick={() => setShowInviteModal(false)}>
+                취소
+              </ModalButton>
+              <ModalButton primary onClick={handleInviteUser}>
+                초대하기
+              </ModalButton>
             </ModalButtons>
           </Modal>
         </ModalOverlay>
