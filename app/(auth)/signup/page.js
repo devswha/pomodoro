@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
@@ -183,35 +183,172 @@ const LoginLink = styled.div`
   }
 `;
 
+const LoadingSpinner = styled.div`
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+  display: inline-block;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
+const PasswordStrengthIndicator = styled.div`
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  
+  .strength-bar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+    
+    .strength-fill {
+      height: 100%;
+      transition: all 0.3s ease;
+      
+      &.weak {
+        width: 33%;
+        background: #dc3545;
+      }
+      
+      &.medium {
+        width: 66%;
+        background: #ffc107;
+      }
+      
+      &.strong {
+        width: 100%;
+        background: #28a745;
+      }
+    }
+  }
+  
+  .strength-text {
+    font-size: 0.75rem;
+    color: #6c757d;
+    
+    &.weak { color: #dc3545; }
+    &.medium { color: #ffc107; }
+    &.strong { color: #28a745; }
+  }
+`;
+
+const RequirementsList = styled.ul`
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.75rem;
+  color: #6c757d;
+  
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    
+    &.valid {
+      color: #28a745;
+    }
+    
+    &.invalid {
+      color: #dc3545;
+    }
+    
+    &::before {
+      content: '•';
+      width: 0.75rem;
+      text-align: center;
+    }
+    
+    &.valid::before {
+      content: '✓';
+      color: #28a745;
+    }
+    
+    &.invalid::before {
+      content: '✗';
+      color: #dc3545;
+    }
+  }
+`;
+
 export default function SignupPage() {
   const router = useRouter();
-  const { loginUser } = useUser();
+  const { registerUser, currentUser, authLoading, checkPasswordStrength, validateEmail, validateUsername, userManager } = useUser();
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(null);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && currentUser) {
+      router.push('/main');
+    }
+  }, [currentUser, authLoading, router]);
+  
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <SignupContainer>
+        <MainContent>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <LoadingSpinner />
+            Loading...
+          </div>
+        </MainContent>
+      </SignupContainer>
+    );
+  }
 
-  const validateForm = () => {
+  const validateForm = async () => {
     const newErrors = {};
 
-    if (!formData.username.trim()) {
-      newErrors.username = '아이디를 입력해주세요.';
-    } else if (formData.username.length < 4 || formData.username.length > 20) {
-      newErrors.username = '아이디는 4-20자여야 합니다.';
-    } else if (!/^[a-zA-Z0-9]+$/.test(formData.username)) {
-      newErrors.username = '아이디는 영문과 숫자만 가능합니다.';
+    // Enhanced username validation
+    const usernameValidation = validateUsername(formData.username);
+    if (!usernameValidation.isValid) {
+      newErrors.username = usernameValidation.error;
+    } else if (!userManager.isUsernameUnique(usernameValidation.normalizedUsername)) {
+      newErrors.username = '이미 사용 중인 사용자명입니다.';
+    }
+    
+    // Enhanced email validation
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.error;
+    } else if (!userManager.isEmailUnique(emailValidation.normalizedEmail)) {
+      newErrors.email = '이미 사용 중인 이메일 주소입니다.';
     }
 
-    if (!formData.password.trim()) {
+    // Enhanced password validation
+    if (!formData.password) {
       newErrors.password = '비밀번호를 입력해주세요.';
-    } else if (formData.password.length < 4) {
-      newErrors.password = '비밀번호는 4자 이상이어야 합니다.';
+    } else {
+      const passwordValidation = checkPasswordStrength(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = '비밀번호가 요구사항을 충족하지 않습니다: ' + passwordValidation.errors.join(', ');
+      }
     }
 
-    if (!formData.confirmPassword.trim()) {
+    // Confirm password validation
+    if (!formData.confirmPassword) {
       newErrors.confirmPassword = '비밀번호 확인을 입력해주세요.';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
@@ -222,38 +359,99 @@ export default function SignupPage() {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // Update form data first
+    const newFormData = { ...formData, [field]: value };
+    setFormData(newFormData);
     
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    
+    // Real-time password strength validation
+    if (field === 'password') {
+      if (value) {
+        const strength = checkPasswordStrength(value);
+        setPasswordStrength(strength);
+        setShowPasswordRequirements(true);
+      } else {
+        setPasswordStrength(null);
+        setShowPasswordRequirements(false);
+      }
+      
+      // Check password confirmation when password changes
+      if (newFormData.confirmPassword && value !== newFormData.confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: '비밀번호가 일치하지 않습니다.' }));
+      } else if (newFormData.confirmPassword && value === newFormData.confirmPassword) {
+        setErrors(prev => ({ ...prev, confirmPassword: '' }));
+      }
+    }
+    
+    // Real-time username validation and uniqueness check (debounced)
+    if (field === 'username' && value) {
+      setIsCheckingUsername(true);
+      setTimeout(() => {
+        const usernameValidation = validateUsername(value);
+        if (usernameValidation.isValid) {
+          if (!userManager.isUsernameUnique(usernameValidation.normalizedUsername)) {
+            setErrors(prev => ({ ...prev, username: '이미 사용 중인 사용자명입니다.' }));
+          }
+        } else if (value.length >= 1) {
+          setErrors(prev => ({ ...prev, username: usernameValidation.error }));
+        }
+        setIsCheckingUsername(false);
+      }, 500);
+    }
+    
+    // Real-time email validation and uniqueness check
+    if (field === 'email' && value) {
+      setIsCheckingEmail(true);
+      setTimeout(() => {
+        const emailValidation = validateEmail(value);
+        if (emailValidation.isValid) {
+          if (!userManager.isEmailUnique(emailValidation.normalizedEmail)) {
+            setErrors(prev => ({ ...prev, email: '이미 사용 중인 이메일 주소입니다.' }));
+          }
+        } else if (value.includes('@')) {
+          setErrors(prev => ({ ...prev, email: emailValidation.error }));
+        }
+        setIsCheckingEmail(false);
+      }, 500);
+    }
+    
+    // Real-time password confirmation check
+    if (field === 'confirmPassword') {
+      if (value && newFormData.password && value !== newFormData.password) {
+        setErrors(prev => ({ ...prev, confirmPassword: '비밀번호가 일치하지 않습니다.' }));
+      } else if (value && newFormData.password && value === newFormData.password) {
+        setErrors(prev => ({ ...prev, confirmPassword: '' }));
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!validateForm()) {
+    if (!(await validateForm())) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Register and login user
-      loginUser(formData.username, {
-        displayName: formData.username
+      // Register user with enhanced data
+      await registerUser(formData.username.trim(), {
+        displayName: formData.username.trim(),
+        email: formData.email.trim(),
+        password: formData.password
       });
       
-      // Navigate to main page
-      router.push('/main');
+      // Navigate to login page after successful registration
+      alert('회원가입이 완료되었습니다! 로그인해주세요.');
+      router.push('/login');
       
     } catch (error) {
-      console.error('Signup failed:', error);
-      setErrors({ general: '회원가입에 실패했습니다. 다시 시도해주세요.' });
+      setErrors({ general: error.message || '회원가입에 실패했습니다. 다시 시도해주세요.' });
     } finally {
       setIsLoading(false);
     }
@@ -279,16 +477,42 @@ export default function SignupPage() {
 
         <SignupForm onSubmit={handleSubmit}>
           <InputGroup>
-            <InputLabel>아이디</InputLabel>
+            <InputLabel>사용자명</InputLabel>
             <InputField
               type="text"
-              placeholder="아이디 입력 (4-20자, 영문/숫자)"
+              placeholder="사용자명 입력 (4-20자, 영문/숫자/_)"
               value={formData.username}
               onChange={(e) => handleInputChange('username', e.target.value)}
               error={errors.username}
+              autoComplete="username"
             />
+            {isCheckingUsername && (
+              <div style={{ fontSize: '0.75rem', color: '#6c757d', marginTop: '0.25rem' }}>
+                사용자명 확인 중...
+              </div>
+            )}
             <ErrorMessage show={!!errors.username}>
               {errors.username}
+            </ErrorMessage>
+          </InputGroup>
+          
+          <InputGroup>
+            <InputLabel>이메일</InputLabel>
+            <InputField
+              type="email"
+              placeholder="이메일 주소 입력"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              error={errors.email}
+              autoComplete="email"
+            />
+            {isCheckingEmail && (
+              <div style={{ fontSize: '0.75rem', color: '#6c757d', marginTop: '0.25rem' }}>
+                이메일 확인 중...
+              </div>
+            )}
+            <ErrorMessage show={!!errors.email}>
+              {errors.email}
             </ErrorMessage>
           </InputGroup>
 
@@ -300,7 +524,34 @@ export default function SignupPage() {
               value={formData.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
               error={errors.password}
+              autoComplete="new-password"
             />
+            {passwordStrength && (
+              <PasswordStrengthIndicator>
+                <div className="strength-bar">
+                  <div className={`strength-fill ${passwordStrength.strength}`}></div>
+                </div>
+                <div className={`strength-text ${passwordStrength.strength}`}>
+                  {passwordStrength.strength === 'weak' && '비밀번호 강도: 약함'}
+                  {passwordStrength.strength === 'medium' && '비밀번호 강도: 보통'}
+                  {passwordStrength.strength === 'strong' && '비밀번호 강도: 강함'}
+                </div>
+              </PasswordStrengthIndicator>
+            )}
+            {showPasswordRequirements && passwordStrength && (
+              <RequirementsList>
+                <li className={formData.password.length >= 4 ? 'valid' : 'invalid'}>
+                  4자 이상
+                </li>
+              </RequirementsList>
+            )}
+            {passwordStrength && passwordStrength.warnings && passwordStrength.warnings.length > 0 && (
+              <div style={{ fontSize: '0.75rem', color: '#ffc107', marginTop: '0.5rem' }}>
+                {passwordStrength.warnings.map((warning, index) => (
+                  <div key={index}>⚠️ {warning}</div>
+                ))}
+              </div>
+            )}
             <ErrorMessage show={!!errors.password}>
               {errors.password}
             </ErrorMessage>
@@ -314,6 +565,7 @@ export default function SignupPage() {
               value={formData.confirmPassword}
               onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
               error={errors.confirmPassword}
+              autoComplete="new-password"
             />
             <ErrorMessage show={!!errors.confirmPassword}>
               {errors.confirmPassword}
@@ -327,6 +579,7 @@ export default function SignupPage() {
           )}
 
           <SubmitButton type="submit" disabled={isLoading}>
+            {isLoading && <LoadingSpinner />}
             {isLoading ? '가입 중...' : '회원가입'}
           </SubmitButton>
         </SignupForm>

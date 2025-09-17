@@ -18,11 +18,12 @@ body {
 
 /* Monochrome Style Variables */
 :root {
-  --primary-blue: #000000;
-  --primary-green: #000000;
+  --primary-blue: #007AFF;
+  --primary-blue-dark: #0056CC;
+  --primary-green: #34C759;
   --primary-red: #dc3545;
-  --primary-orange: #6c757d;
-  --primary-purple: #000000;
+  --primary-orange: #FF9500;
+  --primary-purple: #5856D6;
   --primary-teal: #000000;
   --primary-pink: #000000;
   --primary-yellow: #000000;
@@ -251,9 +252,83 @@ a:hover {
   animation: spin 1s linear infinite;
 }
 
+/* Enhanced Pulse Loading Animation */
+.pulse-loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 @keyframes spin {
   0% { transform: translate(-50%, -50%) rotate(0deg); }
   100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Shimmer Loading Effect */
+.shimmer {
+  background: linear-gradient(90deg, var(--gray-6) 25%, var(--gray-5) 50%, var(--gray-6) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Touch and Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better touch feedback */
+  button:active, 
+  .nav-item:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px;
+  }
+  
+  /* Better spacing for mobile */
+  .mobile-padding {
+    padding: 1rem;
+  }
+  
+  .mobile-margin {
+    margin: 0.5rem 0;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Crisp borders */
+  button, input, textarea, select {
+    border-width: 0.5px;
+  }
+}
+
+/* Dark mode support (optional for future) */
+@media (prefers-color-scheme: dark) {
+  /* Currently maintaining light theme only */
+  /* Can be implemented later if needed */
 }
 
 /* Accessibility */
@@ -264,6 +339,11 @@ a:hover {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  
+  /* Keep essential loading animations */
+  .loading::after {
+    animation-duration: 0.01ms !important;
   }
 }
 

@@ -1,10 +1,11 @@
 import { UserProvider } from '../lib/contexts/UserContext';
+import { RealtimeProvider } from '../lib/contexts/RealtimeContext';
 import './globals.css';
 import ClientLayout from '../lib/components/ClientLayout';
 
 export const metadata = {
-  title: 'Pomodoro Timer v4.0.0',
-  description: 'Modern React-based pomodoro timer application with minimalist black & white design',
+  title: 'Pomodoro Timer v1.0.1 - Real-time Sync',
+  description: 'Modern React-based pomodoro timer with real-time sync, multi-device support, and collaborative features',
   viewport: 'width=device-width, initial-scale=1',
 };
 
@@ -13,9 +14,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <UserProvider>
-          <ClientLayout>
-            {children}
-          </ClientLayout>
+          <RealtimeProvider>
+            <ClientLayout>
+              {children}
+            </ClientLayout>
+          </RealtimeProvider>
         </UserProvider>
       </body>
     </html>

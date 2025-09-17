@@ -1,8 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
 
@@ -185,53 +184,128 @@ const SignupLink = styled.div`
   }
 `;
 
+const RememberMeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  
+  input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+  }
+  
+  label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+  display: inline-block;
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 export default function LoginPage() {
   const router = useRouter();
-  const { loginUser } = useUser();
+  const { loginUser, currentUser, authLoading, sessionWarning } = useUser();
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  
+  // Redirect if already logged in
+  useEffect(() => {
+    if (!authLoading && currentUser) {
+      router.push('/main');
+    }
+  }, [currentUser, authLoading, router]);
+  
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <LoginContainer>
+        <VersionDisplay>v1.0.1</VersionDisplay>
+        <MainContent>
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <LoadingSpinner />
+            Loading...
+          </div>
+        </MainContent>
+      </LoginContainer>
+    );
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // Clear errors when user starts typing
     if (error) setError('');
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+  
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.username.trim()) {
+      errors.username = '사용자명을 입력해주세요.';
+    }
+    
+    if (!formData.password) {
+      errors.password = '비밀번호를 입력해주세요.';
+    }
+    
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
     
-    if (!formData.username || !formData.password) {
-      setError('아이디와 비밀번호를 입력해주세요.');
-      return;
-    }
-
-    if (formData.password.length < 4) {
-      setError('비밀번호는 4자 이상 입력해주세요.');
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Login with UserManager
-      const user = loginUser(formData.username);
+      // Login with enhanced UserManager
+      await loginUser(formData.username.trim(), formData.password, formData.rememberMe);
       
       // Navigate to main page
       router.push('/main');
       
     } catch (err) {
-      setError('로그인에 실패했습니다. 다시 시도해주세요.');
+      console.error('Login error:', err);
+      setError(err.message || '로그인에 실패했습니다. 다시 시도해주세요.');
     } finally {
       setIsLoading(false);
     }
@@ -243,7 +317,7 @@ export default function LoginPage() {
 
   return (
     <LoginContainer>
-      <VersionDisplay>v4.0.0</VersionDisplay>
+      <VersionDisplay>v1.0.1</VersionDisplay>
       
       <MainContent>
         <HeaderSection>
@@ -254,16 +328,18 @@ export default function LoginPage() {
         <FormSection>
           <LoginForm onSubmit={handleSubmit}>
             <InputGroup>
-              <InputLabel htmlFor="username">아이디</InputLabel>
+              <InputLabel htmlFor="username">사용자명</InputLabel>
               <InputField
                 id="username"
                 name="username"
                 type="text"
-                placeholder="아이디 입력"
+                placeholder="사용자명 입력"
                 value={formData.username}
                 onChange={handleInputChange}
-                error={error}
+                error={fieldErrors.username}
+                autoComplete="username"
               />
+              <ErrorMessage show={!!fieldErrors.username}>{fieldErrors.username}</ErrorMessage>
             </InputGroup>
 
             <InputGroup>
@@ -275,15 +351,40 @@ export default function LoginPage() {
                 placeholder="비밀번호 입력"
                 value={formData.password}
                 onChange={handleInputChange}
-                error={error}
+                error={fieldErrors.password}
+                autoComplete="current-password"
               />
-              <ErrorMessage show={!!error}>{error}</ErrorMessage>
+              <ErrorMessage show={!!fieldErrors.password}>{fieldErrors.password}</ErrorMessage>
             </InputGroup>
+            
+            <RememberMeContainer>
+              <input
+                type="checkbox"
+                id="rememberMe"
+                name="rememberMe"
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+              />
+              <label htmlFor="rememberMe">로그인 상태 유지</label>
+            </RememberMeContainer>
+            
+            {sessionWarning && (
+              <ErrorMessage show={true} style={{ textAlign: 'center', marginTop: '1rem', color: '#ffc107' }}>
+                {sessionWarning}
+              </ErrorMessage>
+            )}
+            
+            {error && (
+              <ErrorMessage show={true} style={{ textAlign: 'center', marginTop: '1rem' }}>
+                {error}
+              </ErrorMessage>
+            )}
 
             <LoginButton 
               type="submit" 
               disabled={isLoading}
             >
+              {isLoading && <LoadingSpinner />}
               {isLoading ? '로그인 중...' : '로그인'}
             </LoginButton>
           </LoginForm>

@@ -1,10 +1,90 @@
 [build]
   publish = "out"
   command = "npm run build"
+  functions = "netlify/functions"
+
+[build.processing]
+  skip_processing = false
 
 [build.environment]
   NODE_VERSION = "18"
+  # Enable Next.js API routes as Netlify Functions
+  NEXT_PUBLIC_API_BASE_URL = "https://your-site.netlify.app"
+  
+# Netlify Functions configuration for API routes
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "nft"
 
+# API routes - redirect to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Handle static routing for Next.js App Router
+# Try exact path first, then fallback to SPA routing
+[[redirects]]
+  from = "/login"
+  to = "/login/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/signup"
+  to = "/signup/index.html"  
+  status = 200
+
+[[redirects]]
+  from = "/main"
+  to = "/main/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/meetings"
+  to = "/meetings/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/mypage"
+  to = "/mypage/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pomodoro-ranking"
+  to = "/pomodoro-ranking/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/pomodoro-start"
+  to = "/pomodoro-start/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/monthly"
+  to = "/monthly/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/full-schedule"
+  to = "/full-schedule/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/onboarding"
+  to = "/onboarding/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard-onboarding"
+  to = "/dashboard-onboarding/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/clear-data"
+  to = "/clear-data/index.html"
+  status = 200
+
+# Fallback for SPA routing - must be last
 [[redirects]]
   from = "/*"
   to = "/index.html"

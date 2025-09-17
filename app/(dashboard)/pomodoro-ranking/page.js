@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
+import { UserManager } from '../../../lib/services/UserManager';
 
 const RankingContainer = styled.div`
   height: 100%;
@@ -233,40 +234,189 @@ const NoDataMessage = styled.div`
   padding: 60px 20px;
   color: var(--text-secondary);
   font-size: 16px;
+  background: var(--background-primary);
+  border-radius: 12px;
+  border: 2px dashed #e9ecef;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: var(--primary-blue);
+    background: #fafbff;
+    transform: translateY(-2px);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--primary-purple), var(--primary-blue));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
 `;
 
-// Mock ranking data
-const generateMockRankingData = (currentUser) => {
-  const mockUsers = [
-    { name: '홍길동', score: 2400, achievement: '2000점 이상', medal: '🥇' },
-    { name: '김정지', score: 1700, achievement: '500점 이상', medal: '🥈' },
-    { name: '잠순이', score: 1200, achievement: '1000점 이상', medal: '🥉' },
-    { name: '이철수', score: 950, achievement: '900점 이상', medal: '🏅' },
-    { name: '박영희', score: 850, achievement: '800점 이상', medal: '🎖️' },
-  ];
+const EmptyRankingIcon = styled.div`
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  
+  ${NoDataMessage}:hover & {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+  }
+`;
 
-  // Add current user if not already in ranking
-  if (currentUser) {
-    const userInRanking = mockUsers.find(user => user.name === currentUser.id);
-    if (!userInRanking) {
-      // Calculate user score based on stats (mock calculation)
-      const userScore = Math.floor(Math.random() * 500) + 300;
-      mockUsers.push({
-        name: currentUser.id,
-        score: userScore,
-        achievement: `${Math.floor(userScore / 100) * 100}점 이상`,
+const EmptyRankingTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  
+  ${NoDataMessage}:hover & {
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const EmptyRankingDescription = styled.p`
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  max-width: 400px;
+  transition: all 0.3s ease;
+  
+  ${NoDataMessage}:hover & {
+    color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin-bottom: 2.5rem;
+  }
+`;
+
+const EmptyRankingButton = styled.button`
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover {
+    background: var(--primary-blue-dark, #0056CC);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+  }
+  
+  @media (min-width: 769px) {
+    padding: 1.25rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+`;
+
+// Generate real ranking data based on user statistics
+const generateRealRankingData = (userManager) => {
+  if (!userManager) return [];
+  
+  const allUsers = userManager.getAllUsers();
+  const userRankings = [];
+
+  Object.keys(allUsers).forEach(userId => {
+    const user = allUsers[userId];
+    const stats = userManager.getUserStats(userId);
+    
+    if (stats && stats.completedSessions > 0) {
+      // Calculate score based on real user data
+      const score = (stats.completedMinutes * 2) + (stats.completedSessions * 10) + (stats.streakDays * 5);
+      
+      userRankings.push({
+        name: user.displayName || user.id,
+        userId: userId,
+        score: score,
+        completedSessions: stats.completedSessions,
+        completedMinutes: stats.completedMinutes,
+        streakDays: stats.streakDays,
+        achievement: getAchievementText(score),
         medal: '🏆'
       });
     }
-  }
+  });
 
   // Sort by score and add rank
-  return mockUsers
+  return userRankings
     .sort((a, b) => b.score - a.score)
     .map((user, index) => ({
       ...user,
       rank: index + 1
     }));
+};
+
+const getAchievementText = (score) => {
+  if (score >= 2000) return '뽀모도로 마스터';
+  if (score >= 1500) return '뽀모도로 전문가';
+  if (score >= 1000) return '뽀모도로 숙련자';
+  if (score >= 500) return '뽀모도로 입문자';
+  return '뽀모도로 새싹';
 };
 
 const MONTHS = [
@@ -279,12 +429,13 @@ export default function PomodoroRankingPage() {
   const { currentUser } = useUser();
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [rankingData, setRankingData] = useState([]);
+  const [userManager] = useState(() => new UserManager());
 
   useEffect(() => {
-    // Generate ranking data for current user
-    const data = generateMockRankingData(currentUser);
+    // Generate ranking data based on real user statistics
+    const data = generateRealRankingData(userManager);
     setRankingData(data);
-  }, [currentUser]);
+  }, [currentUser, userManager]);
 
   const handleBack = () => {
     router.push('/main');
@@ -336,7 +487,7 @@ export default function PomodoroRankingPage() {
         <RankingSection>
           {rankingData.length > 0 ? (
             rankingData.map((user, index) => (
-              <RankingItem key={user.name} rank={user.rank}>
+              <RankingItem key={user.userId || user.name} rank={user.rank}>
                 <RankInfo>
                   <UserDetails>
                     <RankNumber rank={user.rank}>{user.rank}</RankNumber>
@@ -344,7 +495,9 @@ export default function PomodoroRankingPage() {
                     <UserMedal>{getMedalForRank(user.rank)}</UserMedal>
                   </UserDetails>
                   <UserMeta>
-                    <UserAchievement>{user.achievement}</UserAchievement>
+                    <UserAchievement>
+                      {user.achievement} • 세션 {user.completedSessions}회 • {user.completedMinutes}분
+                    </UserAchievement>
                   </UserMeta>
                 </RankInfo>
                 <UserScore>{user.score.toLocaleString()}</UserScore>
@@ -352,7 +505,15 @@ export default function PomodoroRankingPage() {
             ))
           ) : (
             <NoDataMessage>
-              이번 달 랭킹 데이터가 없습니다.
+              <EmptyRankingIcon>🏆</EmptyRankingIcon>
+              <EmptyRankingTitle>아직 랭킹이 없습니다</EmptyRankingTitle>
+              <EmptyRankingDescription>
+                뽀모도로 세션을 완료한 사용자가 없습니다.<br />
+                첫 번째 뽀모도로를 시작해서 랭킹에 도전해보세요!
+              </EmptyRankingDescription>
+              <EmptyRankingButton onClick={() => router.push('/pomodoro-start')}>
+                뽀모도로 시작하기
+              </EmptyRankingButton>
             </NoDataMessage>
           )}
         </RankingSection>

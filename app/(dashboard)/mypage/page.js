@@ -4,6 +4,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
+import ProfileSettings from '../../../lib/components/ProfileSettings';
+import PreferencesPanel from '../../../lib/components/PreferencesPanel';
+import AchievementBadges from '../../../lib/components/AchievementBadges';
 
 const MyPageContainer = styled.div`
   height: 100%;
@@ -275,21 +278,170 @@ const ChartLabel = styled.div`
   margin-top: 4px;
 `;
 
+// New Profile Management Styles
+const TabNavigation = styled.div`
+  display: flex;
+  background: var(--background-primary);
+  border-bottom: 2px solid #000;
+  border-radius: 0;
+`;
+
+const TabButton = styled.button`
+  flex: 1;
+  padding: 16px;
+  background: ${props => props.active ? '#000' : 'transparent'};
+  color: ${props => props.active ? '#fff' : '#000'};
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: ${props => props.active ? '1' : '0.7'};
+  }
+
+  @media (min-width: 769px) {
+    padding: 20px;
+    font-size: 16px;
+  }
+`;
+
+const TabContent = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background: #fff;
+
+  @media (min-width: 769px) {
+    padding: 30px;
+  }
+`;
+
+const ProfileHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 0;
+
+  @media (min-width: 769px) {
+    padding: 32px;
+  }
+`;
+
+const AvatarContainer = styled.div`
+  position: relative;
+`;
+
+const Avatar = styled.div`
+  width: 80px;
+  height: 80px;
+  background: ${props => props.src ? `url(${props.src}) center/cover` : '#000'};
+  border: 2px solid #000;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+
+  @media (min-width: 769px) {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
+  }
+`;
+
+const AvatarUpload = styled.input`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+`;
+
+const ProfileInfo = styled.div`
+  flex: 1;
+`;
+
+const UserName = styled.h2`
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  @media (min-width: 769px) {
+    font-size: 32px;
+  }
+`;
+
+const UserEmail = styled.p`
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+
+  @media (min-width: 769px) {
+    font-size: 16px;
+  }
+`;
+
+const UserBio = styled.p`
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+
+  @media (min-width: 769px) {
+    font-size: 16px;
+  }
+`;
+
+const SectionTitle = styled.h3`
+  margin: 0 0 24px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 8px;
+
+  @media (min-width: 769px) {
+    font-size: 20px;
+  }
+`;
+
 export default function MyPage() {
   const router = useRouter();
-  const { currentUser, getUserStats, getUserSessions } = useUser();
+  const { currentUser, getUserStats, getUserSessions, userManager } = useUser();
   const [period, setPeriod] = useState('month');
   const [userStats, setUserStats] = useState(null);
   const [userSessions, setUserSessions] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && userManager) {
       const stats = getUserStats();
       const sessions = getUserSessions();
+      const profile = userManager.getUser(currentUser.id);
       setUserStats(stats);
       setUserSessions(sessions);
+      setUserProfile(profile);
     }
-  }, [currentUser, getUserStats, getUserSessions]);
+  }, [currentUser, getUserStats, getUserSessions, userManager]);
 
   // Calculate display statistics
   const displayStats = useMemo(() => {
@@ -335,17 +487,162 @@ export default function MyPage() {
     return `${now.toLocaleDateString('en-US', options)} → ${now.toLocaleDateString('en-US', options)}`;
   };
 
-  if (!currentUser || !displayStats) {
+  const handleAvatarUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const avatar = e.target.result;
+        if (userManager && currentUser) {
+          userManager.updateUserProfile(currentUser.id, { avatar })
+            .then((updatedProfile) => {
+              setUserProfile(updatedProfile);
+            })
+            .catch(console.error);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        return (
+          <>
+            <ProfileHeader>
+              <AvatarContainer>
+                <Avatar src={userProfile?.avatar}>
+                  {!userProfile?.avatar && (userProfile?.displayName || currentUser?.id || 'U')[0].toUpperCase()}
+                </Avatar>
+                <AvatarUpload
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                />
+              </AvatarContainer>
+              <ProfileInfo>
+                <UserName>{userProfile?.displayName || currentUser?.id || 'User'}</UserName>
+                <UserEmail>{userProfile?.email || 'No email provided'}</UserEmail>
+                <UserBio>{userProfile?.bio || 'No bio available'}</UserBio>
+              </ProfileInfo>
+            </ProfileHeader>
+
+            {displayStats && (
+              <>
+                <SectionTitle>Statistics Overview</SectionTitle>
+                <StatsGrid>
+                  <StatCard className="primary">
+                    <StatLabel>Focus Sessions</StatLabel>
+                    <StatValue>
+                      {displayStats.focusSessions}
+                      <StatUnit>sessions</StatUnit>
+                    </StatValue>
+                  </StatCard>
+
+                  <StatCard className="primary">
+                    <StatLabel>Total Pomodoros</StatLabel>
+                    <StatValue>
+                      {displayStats.totalSessions}
+                      <StatUnit>sessions</StatUnit>
+                    </StatValue>
+                  </StatCard>
+
+                  <StatCard className="achievement">
+                    <StatHeader>
+                      <AchievementLabel>Achievements</AchievementLabel>
+                    </StatHeader>
+                    <StatValue>
+                      {displayStats.stickerCount}
+                      <StatUnit>badges</StatUnit>
+                    </StatValue>
+                    <StatPercentage>({Math.round(displayStats.stickerPercentage)}%)</StatPercentage>
+                  </StatCard>
+
+                  <StatCard className="achievement">
+                    <StatHeader>
+                      <AchievementLabel>Streak</AchievementLabel>
+                    </StatHeader>
+                    <StatValue>
+                      {displayStats.seriesCount}
+                      <StatUnit>days</StatUnit>
+                    </StatValue>
+                    <StatPercentage>({Math.round(displayStats.seriesPercentage)}%)</StatPercentage>
+                  </StatCard>
+                </StatsGrid>
+
+                <ChartSection>
+                  <ChartTitle>Completion Rate</ChartTitle>
+                  <ChartContainer>
+                    <ProgressChart>
+                      <svg width="150" height="150" viewBox="0 0 150 150">
+                        <circle
+                          cx="75" cy="75" r="60"
+                          fill="none"
+                          stroke="#e9ecef"
+                          strokeWidth="12"
+                        />
+                        <circle
+                          cx="75" cy="75" r="60"
+                          fill="none"
+                          stroke="#000"
+                          strokeWidth="12"
+                          strokeLinecap="round"
+                          strokeDasharray={`${(displayStats.completionRate / 100) * 377} 377`}
+                          transform="rotate(-90 75 75)"
+                          style={{ transition: 'stroke-dasharray 0.5s ease' }}
+                        />
+                      </svg>
+                      <ChartCenter>
+                        <ChartValue>{displayStats.completionRate}%</ChartValue>
+                        <ChartLabel>Completion</ChartLabel>
+                      </ChartCenter>
+                    </ProgressChart>
+                  </ChartContainer>
+                </ChartSection>
+              </>
+            )}
+
+            <AchievementBadges 
+              userStats={userStats} 
+              userSessions={userSessions}
+            />
+          </>
+        );
+      case 'settings':
+        return (
+          <ProfileSettings 
+            userProfile={userProfile}
+            setUserProfile={setUserProfile}
+            userManager={userManager}
+            currentUser={currentUser}
+          />
+        );
+      case 'preferences':
+        return (
+          <PreferencesPanel
+            userProfile={userProfile}
+            setUserProfile={setUserProfile}
+            userManager={userManager}
+            currentUser={currentUser}
+          />
+        );
+      default:
+        return <div>Tab not found</div>;
+    }
+  };
+
+  if (!currentUser || !userProfile || !displayStats) {
     return (
       <MyPageContainer>
         <AppHeader>
-          <BackButton onClick={handleBack}>뒤로</BackButton>
-          <AppTitle>My Page</AppTitle>
+          <BackButton onClick={handleBack}>Back</BackButton>
+          <AppTitle>My Profile</AppTitle>
           <HeaderSpacer />
         </AppHeader>
         <MainContent>
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-secondary)' }}>
-            데이터를 불러오는 중...
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666' }}>
+            Loading profile data...
           </div>
         </MainContent>
       </MyPageContainer>
@@ -355,112 +652,35 @@ export default function MyPage() {
   return (
     <MyPageContainer>
       <AppHeader>
-        <BackButton onClick={handleBack}>뒤로</BackButton>
-        <AppTitle>{currentUser.id}의 My Page</AppTitle>
+        <BackButton onClick={handleBack}>Back</BackButton>
+        <AppTitle>My Profile</AppTitle>
         <HeaderSpacer />
       </AppHeader>
 
-      <FilterHeader>
-        <FilterControls>
-          <PeriodSelector>
-            <PeriodSelect value={period} onChange={(e) => setPeriod(e.target.value)}>
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-            </PeriodSelect>
-          </PeriodSelector>
-          <DateRangeSelector>
-            <DateRangeButton>
-              <span>{formatDateRange()}</span>
-              <span>▼</span>
-            </DateRangeButton>
-          </DateRangeSelector>
-          <SearchButton>
-            🔍
-          </SearchButton>
-        </FilterControls>
-      </FilterHeader>
+      <TabNavigation>
+        <TabButton 
+          active={activeTab === 'overview'} 
+          onClick={() => setActiveTab('overview')}
+        >
+          Overview
+        </TabButton>
+        <TabButton 
+          active={activeTab === 'settings'} 
+          onClick={() => setActiveTab('settings')}
+        >
+          Settings
+        </TabButton>
+        <TabButton 
+          active={activeTab === 'preferences'} 
+          onClick={() => setActiveTab('preferences')}
+        >
+          Preferences
+        </TabButton>
+      </TabNavigation>
 
-      <MainContent>
-        <StatsGrid>
-          <StatCard className="primary">
-            <StatLabel>가장 집중 횟수</StatLabel>
-            <StatValue>
-              {displayStats.focusSessions}
-              <StatUnit>회</StatUnit>
-            </StatValue>
-          </StatCard>
-
-          <StatCard className="primary">
-            <StatLabel>총 뽀모도로 횟수</StatLabel>
-            <StatValue>
-              {displayStats.totalSessions}
-              <StatUnit>회</StatUnit>
-            </StatValue>
-          </StatCard>
-
-          <StatCard className="achievement">
-            <StatHeader>
-              <AchievementLabel>스티커 (+{Math.floor(displayStats.stickerCount * 0.1)})</AchievementLabel>
-            </StatHeader>
-            <StatValue>
-              {displayStats.stickerCount}
-              <StatUnit>개</StatUnit>
-            </StatValue>
-            <StatPercentage>({Math.round(displayStats.stickerPercentage)}%)</StatPercentage>
-          </StatCard>
-
-          <StatCard className="achievement">
-            <StatHeader>
-              <AchievementLabel>연속 (+{Math.floor(displayStats.seriesCount * 0.2)})</AchievementLabel>
-            </StatHeader>
-            <StatValue>
-              {displayStats.seriesCount}
-              <StatUnit>일</StatUnit>
-            </StatValue>
-            <StatPercentage>({Math.round(displayStats.seriesPercentage)}%)</StatPercentage>
-          </StatCard>
-        </StatsGrid>
-
-        <ChartSection>
-          <ChartTitle>완료율 통계</ChartTitle>
-          <ChartContainer>
-            <ProgressChart>
-              <svg width="150" height="150" viewBox="0 0 150 150">
-                <circle
-                  cx="75" cy="75" r="60"
-                  fill="none"
-                  stroke="var(--gray-5)"
-                  strokeWidth="12"
-                />
-                <circle
-                  cx="75" cy="75" r="60"
-                  fill="none"
-                  stroke="var(--primary-blue)"
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeDasharray={`${(displayStats.completionRate / 100) * 377} 377`}
-                  transform="rotate(-90 75 75)"
-                  style={{ transition: 'stroke-dasharray 0.5s ease' }}
-                />
-              </svg>
-              <ChartCenter>
-                <ChartValue>{displayStats.completionRate}%</ChartValue>
-                <ChartLabel>완료율</ChartLabel>
-              </ChartCenter>
-            </ProgressChart>
-          </ChartContainer>
-        </ChartSection>
-
-        <ChartSection>
-          <ChartTitle>시간별 집중도 분석</ChartTitle>
-          <ChartContainer>
-            📊 시간별 분석 차트
-            <br />
-            <small>총 {displayStats.totalMinutes}분 집중</small>
-          </ChartContainer>
-        </ChartSection>
-      </MainContent>
+      <TabContent>
+        {renderTabContent()}
+      </TabContent>
     </MyPageContainer>
   );
 }

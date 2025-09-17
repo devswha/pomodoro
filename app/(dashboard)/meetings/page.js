@@ -175,6 +175,172 @@ const MeetingsList = styled.div`
   margin-top: 2rem;
 `;
 
+const EmptyStateContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border: 2px dashed #e9ecef;
+  background: #ffffff;
+  min-height: 280px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #000000;
+    background: #fafafa;
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #000000, #6c757d, #000000);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
+  
+  @media (min-width: 769px) {
+    padding: 4rem 2rem;
+    min-height: 320px;
+    border-radius: 12px;
+  }
+`;
+
+const EmptyStateIcon = styled.div`
+  font-size: 4rem;
+  color: #000000;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &::after {
+    content: '✨';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    transform: scale(0.5);
+  }
+  
+  ${EmptyStateContainer}:hover & {
+    transform: scale(1.1);
+    opacity: 1;
+    
+    &::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 5rem;
+    margin-bottom: 2rem;
+  }
+`;
+
+const EmptyStateTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #000000;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all 0.3s ease;
+  
+  ${EmptyStateContainer}:hover & {
+    color: #000000;
+    transform: translateY(-2px);
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+`;
+
+const EmptyStateDescription = styled.p`
+  font-size: 0.95rem;
+  color: #6c757d;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+  max-width: 320px;
+  transition: all 0.3s ease;
+  
+  ${EmptyStateContainer}:hover & {
+    color: #495057;
+    transform: translateY(-1px);
+  }
+  
+  @media (min-width: 769px) {
+    font-size: 1.1rem;
+    max-width: 450px;
+    margin-bottom: 2.5rem;
+  }
+`;
+
+const EmptyStateButton = styled.button`
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  &:hover {
+    background: #333333;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    
+    &::before {
+      left: 100%;
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  @media (min-width: 769px) {
+    padding: 1.25rem 2.5rem;
+    font-size: 1rem;
+    border-radius: 6px;
+  }
+`;
+
 const MeetingsListTitle = styled.h3`
   font-size: 1.25rem;
   font-weight: 600;
@@ -189,10 +355,37 @@ const MeetingCard = styled.div`
   padding: 1.5rem;
   margin-bottom: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  background: #ffffff;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #000000;
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+  }
   
   &:hover {
     border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    
+    &::before {
+      transform: scaleY(1);
+    }
+  }
+  
+  @media (min-width: 769px) {
+    border-radius: 12px;
+    padding: 2rem;
   }
 `;
 
@@ -279,10 +472,22 @@ const FormInput = styled.input`
   font-size: 1rem;
   color: #000000;
   background: #ffffff;
+  transition: all 0.2s ease;
   
   &:focus {
     outline: none;
     border-color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:hover {
+    border-color: #6c757d;
+  }
+  
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
   }
 `;
 
@@ -296,10 +501,22 @@ const FormTextarea = styled.textarea`
   min-height: 100px;
   resize: vertical;
   font-family: inherit;
+  transition: all 0.2s ease;
   
   &:focus {
     outline: none;
     border-color: #000000;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:hover {
+    border-color: #6c757d;
+  }
+  
+  &::placeholder {
+    color: #adb5bd;
+    font-style: italic;
   }
 `;
 
@@ -326,6 +543,12 @@ const ModalButton = styled.button`
     
     &:hover {
       background: #333333;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    &:active {
+      transform: translateY(0);
     }
   ` : `
     background: #ffffff;
@@ -333,6 +556,12 @@ const ModalButton = styled.button`
     
     &:hover {
       background: #f8f9fa;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    &:active {
+      transform: translateY(0);
     }
   `}
 `;
@@ -414,8 +643,26 @@ export default function MeetingsPage() {
   };
 
   const handleSaveMeeting = () => {
-    if (!formData.title || !formData.date || !formData.time) {
-      alert('제목, 날짜, 시간은 필수 항목입니다.');
+    if (!formData.title.trim()) {
+      alert('모임 제목을 입력해주세요.');
+      return;
+    }
+    
+    if (!formData.date) {
+      alert('모임 날짜를 선택해주세요.');
+      return;
+    }
+    
+    if (!formData.time) {
+      alert('모임 시간을 선택해주세요.');
+      return;
+    }
+    
+    // Check if the meeting date/time is in the past
+    const meetingDateTime = new Date(formData.date + 'T' + formData.time);
+    const now = new Date();
+    if (meetingDateTime < now) {
+      alert('과거 시간으로는 모임을 만들 수 없습니다.');
       return;
     }
 
@@ -514,10 +761,17 @@ export default function MeetingsPage() {
         <MeetingsList>
           <MeetingsListTitle>다가오는 모임</MeetingsListTitle>
           {upcomingMeetings.length === 0 ? (
-            <MeetingCard>
-              <MeetingTitle>예정된 모임이 없습니다</MeetingTitle>
-              <MeetingDescription>새로운 모임을 추가해보세요!</MeetingDescription>
-            </MeetingCard>
+            <EmptyStateContainer>
+              <EmptyStateIcon>📅</EmptyStateIcon>
+              <EmptyStateTitle>예정된 모임이 없습니다</EmptyStateTitle>
+              <EmptyStateDescription>
+                아직 등록된 모임이 없습니다.<br/>
+                첫 번째 모임을 계획해보세요!
+              </EmptyStateDescription>
+              <EmptyStateButton onClick={() => handleAddMeeting()}>
+                첫 모임 만들기
+              </EmptyStateButton>
+            </EmptyStateContainer>
           ) : (
             upcomingMeetings.map(meeting => (
               <MeetingCard key={meeting.id}>
