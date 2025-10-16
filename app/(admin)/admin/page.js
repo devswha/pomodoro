@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
+import { ADMIN_CONFIG, STORAGE_KEYS, API_ENDPOINTS } from '../../../lib/config';
 
 const DashboardContainer = styled.div`
   display: flex;
@@ -291,11 +292,10 @@ export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const ADMIN_PASSWORD = 'admin123'; // Admin password
 
   useEffect(() => {
     // Check if already authenticated in this session
-    const adminAuth = sessionStorage.getItem('adminAuthenticated');
+    const adminAuth = sessionStorage.getItem(STORAGE_KEYS.adminAuthenticated);
     if (adminAuth === 'true') {
       setIsAuthenticated(true);
       fetchDashboardData();
@@ -304,9 +304,9 @@ export default function AdminDashboard() {
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (password === ADMIN_CONFIG.password) {
       setIsAuthenticated(true);
-      sessionStorage.setItem('adminAuthenticated', 'true');
+      sessionStorage.setItem(STORAGE_KEYS.adminAuthenticated, 'true');
       setPasswordError('');
       fetchDashboardData();
     } else {
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
       const token = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
 
       // Fetch dashboard data from API
-      const response = await fetch('/api/admin/dashboard', {
+      const response = await fetch(API_ENDPOINTS.adminDashboard, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
       case 'export-users':
         // Export users to CSV
         const token = localStorage.getItem('userToken') || sessionStorage.getItem('userToken');
-        const response = await fetch('/api/admin/export-users', {
+        const response = await fetch(API_ENDPOINTS.exportUsers, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
