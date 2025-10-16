@@ -45,25 +45,17 @@ tmp/
 dist/
 build/
 .cache/
+out/
 
 # Coverage reports
 coverage/
 *.lcov
-
-# Sass cache
-.sass-cache/
 
 # Optional npm cache directory
 .npm
 
 # Optional eslint cache
 .eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
 
 # Optional REPL history
 .node_repl_history
@@ -74,28 +66,8 @@ coverage/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-.env.test
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
 # Next.js build output
 .next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
 
 # Temporary folders
 .tmp/
@@ -103,6 +75,5 @@ public
 
 # Figma MCP Context (내장 git 레포지토리)
 Figma-Context-MCP/
-# Local Netlify folder
-.netlify
+# Vercel
 .vercel

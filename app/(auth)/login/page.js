@@ -272,15 +272,15 @@ export default function LoginPage() {
   
   const validateForm = () => {
     const errors = {};
-    
+
     if (!formData.username.trim()) {
-      errors.username = '사용자명을 입력해주세요.';
+      errors.username = '로그인 ID를 입력해주세요.';
     }
-    
+
     if (!formData.password) {
       errors.password = '비밀번호를 입력해주세요.';
     }
-    
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -328,12 +328,12 @@ export default function LoginPage() {
         <FormSection>
           <LoginForm onSubmit={handleSubmit}>
             <InputGroup>
-              <InputLabel htmlFor="username">사용자명</InputLabel>
+              <InputLabel htmlFor="username">로그인 ID</InputLabel>
               <InputField
                 id="username"
                 name="username"
                 type="text"
-                placeholder="사용자명 입력"
+                placeholder="로그인 ID 입력"
                 value={formData.username}
                 onChange={handleInputChange}
                 error={fieldErrors.username}

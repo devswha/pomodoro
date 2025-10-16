@@ -8,7 +8,7 @@ import { corsHeaders } from '../../lib/auth';
 
 export async function POST(request) {
   try {
-    const { username, email, password } = await request.json();
+    const { username, email, password, displayName } = await request.json();
 
     // Check if user exists
     const { data: existingUser } = await supabase
@@ -19,20 +19,23 @@ export async function POST(request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Username or email already exists' },
+        { error: '이미 사용 중인 로그인 ID 또는 이메일입니다.' },
         { status: 409, headers: corsHeaders }
       );
     }
 
     // Create user
+    const userToInsert = {
+      username,
+      display_name: displayName || username,
+      email,
+      password_hash: 'placeholder', // In production, hash the password
+      created_at: new Date().toISOString()
+    };
+
     const { data: newUser, error: userError } = await supabase
       .from('users')
-      .insert([{
-        username,
-        email,
-        password_hash: 'placeholder', // In production, hash the password
-        created_at: new Date().toISOString()
-      }])
+      .insert([userToInsert])
       .select()
       .single();
 
@@ -50,6 +53,7 @@ export async function POST(request) {
         user: {
           id: newUser.id,
           username: newUser.username,
+          display_name: newUser.display_name,
           email: newUser.email
         }
       },

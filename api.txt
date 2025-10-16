@@ -1,5 +1,0 @@
-  claude mcp add figma --name figma-mcp
-  claude mcp add context7 "npx -y @upstash/context7-mcp --api-key ctx7sk-976001ee-0bf5-49d8-9439-7113b7759bc2"
-  claude mcp add supabase "npx @supabase/mcp-server-supabase --read-only --project-ref=lasoynzegoiktncjzqad"
-  claude mcp add sequential-thinking "npx -y @modelcontextprotocol/server-sequential-thinking"
-  claude mcp add netlify "https://netlify-mcp.netlify.app/mcp"

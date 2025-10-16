@@ -316,7 +316,7 @@ export default function UsersPage() {
 
       <SearchBar
         type="text"
-        placeholder="사용자 검색 (아이디, 이름, 이메일)"
+        placeholder="사용자 검색 (사용자명, 로그인 ID, 이메일)"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
@@ -324,8 +324,8 @@ export default function UsersPage() {
       <Table>
         <thead>
           <tr>
-            <Th>아이디</Th>
-            <Th>이름</Th>
+            <Th>사용자명</Th>
+            <Th>로그인 ID</Th>
             <Th>이메일</Th>
             <Th>가입일</Th>
             <Th>마지막 로그인</Th>
@@ -336,8 +336,8 @@ export default function UsersPage() {
         <tbody>
           {filteredUsers.map(user => (
             <Tr key={user.id}>
-              <Td>{user.username}</Td>
               <Td>{user.display_name || '-'}</Td>
+              <Td>{user.username}</Td>
               <Td>{user.email || '-'}</Td>
               <Td>{formatDate(user.created_at)}</Td>
               <Td>{formatDate(user.last_login)}</Td>
