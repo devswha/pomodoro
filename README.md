@@ -81,7 +81,7 @@ npm install
 NEXT_PUBLIC_SUPABASE_URL=https://lasoynzegoiktncjzqad.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_APP_VERSION=1.0.2
+NEXT_PUBLIC_APP_VERSION=1.0.3
 ```
 
 ### 4. 개발 서버 실행
@@ -265,7 +265,7 @@ MIT License
 ---
 
 **마지막 업데이트**: 2025-10-07
-**버전**: 1.0.2
+**버전**: 1.0.3
 **배포 플랫폼**: Vercel ✅
 
 > Next.js와 Supabase를 활용한 실시간 협업 포모도로 타이머 애플리케이션 🍅

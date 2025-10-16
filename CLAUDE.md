@@ -270,7 +270,7 @@ vercel env add SUPABASE_SERVICE_ROLE_KEY production
 NEXT_PUBLIC_SUPABASE_URL=https://lasoynzegoiktncjzqad.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
-NEXT_PUBLIC_APP_VERSION=1.0.2
+NEXT_PUBLIC_APP_VERSION=1.0.3
 ```
 
 ---
@@ -396,4 +396,4 @@ curl https://pomodoro-beryl-ten.vercel.app/api/health       # 프로덕션 헬�
 
 **마지막 업데이트**: 2025-10-16
 **배포 플랫폼**: Vercel ✅
-**버전**: 1.0.2
+**버전**: 1.0.3

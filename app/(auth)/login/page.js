@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import styled from 'styled-components';
 import { useUser } from '../../../lib/contexts/UserContext';
+import { APP_VERSION } from '../../../lib/config/version';
 
 const LoginContainer = styled.div`
   height: 100%;
@@ -245,7 +246,7 @@ export default function LoginPage() {
   if (authLoading) {
     return (
       <LoginContainer>
-        <VersionDisplay>v1.0.2</VersionDisplay>
+        <VersionDisplay>v{APP_VERSION}</VersionDisplay>
         <MainContent>
           <div style={{ textAlign: 'center', padding: '2rem' }}>
             <LoadingSpinner />
@@ -317,8 +318,8 @@ export default function LoginPage() {
 
   return (
     <LoginContainer>
-      <VersionDisplay>v1.0.2</VersionDisplay>
-      
+      <VersionDisplay>v{APP_VERSION}</VersionDisplay>
+
       <MainContent>
         <HeaderSection>
           <BrandTitle>STEP</BrandTitle>

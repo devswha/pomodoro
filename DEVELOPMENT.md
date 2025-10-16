@@ -52,7 +52,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Application
-NEXT_PUBLIC_APP_VERSION=1.0.2
+NEXT_PUBLIC_APP_VERSION=1.0.3
 ```
 
 ### API 엔드포인트
