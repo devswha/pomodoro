@@ -1,249 +1,271 @@
-# 🍅 Pomodoro Signup & Login System
+# 🍅 Pomodoro Timer (STEP Timer)
 
-iOS 스타일의 완벽한 회원가입 및 로그인 시스템입니다. Figma 디자인을 기반으로 MCP를 활용하여 픽셀 퍼펙트하게 구현했습니다.
+Next.js 기반의 포모도로 타이머 애플리케이션입니다. Supabase를 사용한 실시간 협업 기능과 통계 시스템을 제공합니다.
 
-## ✨ 주요 특징
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel)](https://pomodoro-beryl-ten.vercel.app)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2.32-black?logo=next.js)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green?logo=supabase)](https://supabase.com/)
 
-### 🎨 디자인
-- **iOS 네이티브 스타일**: 완벽한 iPhone 디자인 재현
-- **Figma 기반**: MCP를 활용한 정확한 디자인 구현
-- **반응형 디자인**: 데스크톱과 모바일 모두 지원
-- **부드러운 애니메이션**: 60fps 부드러운 전환 효과
+## 🚀 라이브 데모
 
-### 🔐 로그인 시스템
-- **완전한 폼 검증**: 실시간 입력 유효성 검사
-- **로딩 상태**: 로그인 진행 상황 시각적 피드백
-- **에러 처리**: 사용자 친화적 오류 메시지
-- **자동완성 지원**: 브라우저 자동완성 감지
+- **프로덕션**: https://pomodoro-beryl-ten.vercel.app
+- **Admin 대시보드**: https://pomodoro-beryl-ten.vercel.app/admin (Password: `admin123`)
 
-### 📝 회원가입 플로우
-- **3단계 진행**: 비밀번호 → 비밀번호 확인 → 아이디
-- **프로그레스 바**: 진행 상황 시각적 표시
-- **실시간 검증**: 각 단계별 즉시 유효성 확인
-- **스마트 네비게이션**: 자동 다음 단계 이동
+## ✨ 주요 기능
 
-### ⌨️ 가상 키보드
-- **iOS 스타일 키보드**: 완벽한 QWERTY 레이아웃
-- **동적 표시/숨김**: 입력시에만 키보드 표시
-- **물리 키보드 지원**: 데스크톱 키보드 동시 지원
-- **터치 피드백**: 네이티브 앱 수준의 상호작용
+### 🕐 STEP Timer (Pomodoro)
+- 25분 포모도로 타이머
+- 세션 기록 및 통계
+- 실시간 동기화 (Supabase Realtime)
+- 자동 완료 및 휴식 알림
 
-## 🚀 데모
+### 👥 미팅 협업
+- 실시간 미팅 생성 및 참가
+- 참가자 상태 동기화
+- 미팅 히스토리 관리
+- 팀 세션 공유
 
-### 페이지별 접근
-- **로그인 페이지**: [http://localhost:8000/login.html](http://localhost:8000/login.html)
-- **회원가입 페이지**: [http://localhost:8000/index.html](http://localhost:8000/index.html)
+### 📊 통계 및 랭킹
+- 개인 통계 대시보드
+- 월간 달성률
+- 전체 사용자 랭킹
+- 성취도 배지 시스템
 
-### 테스트 계정
-- **기본 계정**: `test` / `test`
-- **회원가입**: 새로 계정을 만들면 자동으로 저장됩니다
-- **비밀번호 규칙**: 4자 이상 (복잡도 요구사항 없음)
+### 🔐 인증 시스템
+- 간편한 회원가입/로그인
+- 세션 기반 인증
+- 자동 로그인 유지
+
+### 👨‍💼 Admin 대시보드
+- 사용자 관리
+- 실시간 활동 모니터링
+- 통계 분석
+- 데이터 내보내기
 
 ## 🛠️ 기술 스택
 
 ### Frontend
-- **Vanilla HTML/CSS/JavaScript**: 프레임워크 없는 순수 웹 기술
-- **SF Pro Display**: Apple 시스템 폰트
-- **CSS Grid & Flexbox**: 모던 레이아웃
-- **CSS Animations**: 부드러운 전환 효과
+- **Framework**: Next.js 14.2.32 (App Router)
+- **React**: 18.3.1
+- **Styling**: Styled Components 5.3.9
+- **Charts**: Chart.js + react-chartjs-2
+- **State Management**: React Context API
 
-### 개발 도구
-- **MCP (Model Context Protocol)**: Figma 디자인 정확한 구현
-- **Figma API**: 실시간 디자인 동기화
-- **Git**: 버전 관리
+### Backend
+- **API**: Next.js API Routes
+- **Database**: Supabase (PostgreSQL)
+- **Realtime**: Supabase Realtime
+- **Authentication**: Custom token-based auth
 
-## 📱 화면 구성
+### Deployment
+- **Platform**: Vercel ✅
+- **CI/CD**: Git push → Auto deploy
+- **Serverless**: Vercel Functions
 
-### 로그인 페이지
-- Stepper 앱 헤더
-- "처음 방문하셨나요?" 회원가입 유도
-- 아이디/비밀번호 입력 필드
-- 아이디 찾기/비밀번호 찾기 링크
-- 로그인 버튼
+## 📦 설치 및 실행
 
-### 회원가입 페이지
-- 3단계 프로그레스 표시
-- 단계별 입력 폼
-- 실시간 유효성 검증
-- 가상 키보드 지원
-
-## 🎯 구현 특징
-
-### UX/UI 최적화
-```css
-/* iOS 스타일 블러 효과 */
-.iphone-container {
-    backdrop-filter: blur(20px);
-    border-radius: 40px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-}
-
-/* 부드러운 애니메이션 */
-.step-content {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+### 1. 저장소 클론
+```bash
+git clone <repository-url>
+cd pomodoro
 ```
 
-### 실시간 검증 시스템
-```javascript
-validatePassword(password) {
-    const minLength = password.length >= 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?\":{}|<>]/.test(password);
-    
-    return minLength && hasUpperCase && hasLowerCase && (hasNumbers || hasSpecialChar);
-}
+### 2. 의존성 설치
+```bash
+npm install
 ```
 
-### 가상 키보드 인터랙션
-```javascript
-showKeyboard() {
-    this.virtualKeyboard.classList.add('slide-up');
-    this.iphoneContainer.classList.add('keyboard-active');
-}
+### 3. 환경 변수 설정
+`.env.local` 파일 생성:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://lasoynzegoiktncjzqad.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_APP_VERSION=1.0.2
 ```
 
-## 📦 파일 구조
+### 4. 개발 서버 실행
+```bash
+npm run dev
+```
+→ http://localhost:3000
+
+### 5. 프로덕션 빌드
+```bash
+npm run build
+npm run start
+```
+
+## 📁 프로젝트 구조
 
 ```
 pomodoro/
-├── 📱 login.html              # 로그인 페이지
-├── 🎨 login-style.css         # 로그인 스타일시트
-├── ⚡ login-script.js         # 로그인 기능
-├── 📝 index.html              # 회원가입 페이지
-├── 🎨 signup-style.css        # 회원가입 스타일시트
-├── ⚡ signup-script.js        # 회원가입 기능
-├── 🗃️ style.css               # 레거시 스타일 (구버전)
-├── 🗃️ script.js               # 레거시 스크립트 (구버전)
-├── 📚 CLAUDE.md               # 개발 가이드라인
-├── 📄 README.md               # 프로젝트 문서
-└── 🗂️ Figma-Context-MCP/     # MCP 도구
+├── app/
+│   ├── api/                    # Next.js API Routes
+│   │   ├── lib/               # 공통 라이브러리
+│   │   ├── health/            # 헬스 체크
+│   │   ├── admin/             # Admin API
+│   │   ├── auth/              # 인증 API
+│   │   └── users/             # 사용자 API
+│   ├── (auth)/                # 인증 페이지
+│   ├── (dashboard)/           # 대시보드 페이지
+│   └── (admin)/               # Admin 페이지
+├── lib/
+│   ├── contexts/              # React Contexts
+│   ├── components/            # 공통 컴포넌트
+│   ├── hooks/                 # Custom Hooks
+│   └── services/              # 서비스 레이어
+├── database/
+│   └── complete-schema.sql   # Supabase 스키마
+├── next.config.js            # Next.js 설정
+└── vercel.json               # Vercel 설정
 ```
 
-## 🚀 실행 방법
+## 🌐 API 엔드포인트
 
-### 1. 로컬 서버 실행
+### Public Endpoints
+- `GET /api/health` - 헬스 체크
+- `POST /api/auth/login` - 로그인
+- `POST /api/auth/signup` - 회원가입
+
+### Authenticated Endpoints
+- `GET /api/users` - 사용자 목록 (인증 필요)
+
+### Admin Endpoints (인증 불필요)
+- `GET /api/admin/dashboard` - 대시보드 통계
+- `GET /api/admin/export-users` - 사용자 데이터 내보내기
+
+## 🔧 개발 스크립트
+
 ```bash
-# Python 사용
-python -m http.server 8000
-
-# Node.js 사용
-npx serve .
-
-# PHP 사용
-php -S localhost:8000
+npm run dev          # 개발 서버 (포트 3000)
+npm run build        # 프로덕션 빌드
+npm run start        # 프로덕션 서버
+npm run lint         # ESLint 실행
 ```
 
-### 2. 브라우저 접속
-- 로그인: http://localhost:8000/login.html
-- 회원가입: http://localhost:8000/index.html
+## 🚀 배포
 
-### 3. 테스트 시나리오
-1. 로그인 페이지에서 "회원가입 하러가기" 클릭
-2. 3단계 회원가입 진행
-3. 완료 후 자동 로그인 페이지 이동
-
-## 💡 개발 하이라이트
-
-### MCP를 활용한 Figma 구현
-```javascript
-// Figma 노드 직접 접근
-mcp__figma__view_node({
-    file_key: "XcJJgcquIhThEvaNw9QOXC", 
-    node_id: "35:701"  // 로그인 페이지
-});
-
-mcp__figma__view_node({
-    file_key: "XcJJgcquIhThEvaNw9QOXC",
-    node_id: "35:1371" // 회원가입 페이지
-});
+### Vercel 배포 (자동)
+```bash
+# Git push로 자동 배포
+git add .
+git commit -m "Update feature"
+git push origin main
 ```
 
-### iOS 네이티브 수준 인터랙션
-- 터치 피드백 시뮬레이션
-- 햅틱 피드백 효과
-- 키보드 동적 표시/숨김
-- 부드러운 페이지 전환
+### Vercel CLI 수동 배포
+```bash
+# 프리뷰 배포
+vercel
 
-### 접근성 고려사항
-- 키보드 네비게이션 완전 지원
-- 스크린 리더 호환성
-- 감소된 모션 설정 지원
-- 색상 대비 최적화
-
-## 🎨 디자인 시스템
-
-### 컬러 팔레트
-- **Primary Blue**: #007AFF (iOS 시스템 블루)
-- **Success Green**: #34C759 (검증 완료)
-- **Error Red**: #FF3B30 (오류 표시)
-- **Gray Scale**: #F2F2F7, #8E8E93, #C7C7CC
-
-### 타이포그래피
-- **헤드라인**: SF Pro Display 700 (34px)
-- **본문**: SF Pro Display 400 (17px)
-- **캡션**: SF Pro Display 500 (14px)
-
-### 간격 시스템
-- **컴포넌트 간격**: 16px, 20px, 24px
-- **내부 패딩**: 12px, 16px, 20px
-- **외부 마진**: 20px, 32px, 40px
-
-## 🔧 고급 기능
-
-### 폼 검증 엔진
-```javascript
-class ValidationEngine {
-    static rules = {
-        password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-        id: /^[a-zA-Z0-9]{4,20}$/
-    };
-}
+# 프로덕션 배포
+vercel --prod
 ```
 
-### 애니메이션 시스템
-```css
-@keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
+## 📊 데이터베이스 스키마
+
+### 주요 테이블
+- **users**: 사용자 정보
+- **auth_sessions**: 인증 세션
+- **step_sessions**: 포모도로 세션
+- **meetings**: 미팅 정보
+- **meeting_participants**: 미팅 참가자
+
+상세 스키마: `database/complete-schema.sql`
+
+## 🔐 인증
+
+### 인증 방식
+- Custom token-based authentication
+- 24시간 세션 유지
+- `x-user-token` 헤더 또는 `Authorization: Bearer {token}`
+
+### Admin 페이지
+- Password: `admin123`
+- 프론트엔드 레벨 보호 (API는 인증 불필요)
+
+## 🎯 주요 페이지
+
+- `/` - 홈페이지
+- `/login` - 로그인
+- `/signup` - 회원가입
+- `/main` - 메인 대시보드
+- `/step-start` - 타이머 시작
+- `/step-ranking` - 랭킹
+- `/meetings` - 미팅 관리
+- `/monthly` - 월간 통계
+- `/mypage` - 마이 페이지
+- `/admin` - Admin 대시보드
+
+## 💡 특징
+
+### 실시간 동기화
+- Supabase Realtime을 활용한 실시간 데이터 동기화
+- 다중 사용자 동시 세션 지원
+- 실시간 랭킹 업데이트
+
+### 반응형 디자인
+- 모바일/태블릿/데스크톱 최적화
+- iOS 스타일 UI 컴포넌트
+- 부드러운 애니메이션
+
+### 성능 최적화
+- Next.js App Router 활용
+- Server-side rendering
+- Optimistic UI updates
+- Image optimization
+
+## 🐛 문제 해결
+
+### 로컬 개발 시 API 오류
+```bash
+# 환경 변수 확인
+cat .env.local
+
+# 서버 재시작
+npm run dev
 ```
 
-### 상태 관리
-```javascript
-class SignupFlow {
-    constructor() {
-        this.currentStep = 1;
-        this.formData = { password: '', confirmPassword: '', id: '' };
-        this.isKeyboardVisible = false;
-    }
-}
-```
+### Vercel 배포 실패
+1. Environment Variables 확인
+2. Build Logs 확인: https://vercel.com/dashboard
+3. `vercel logs [URL]`로 로그 확인
 
-## 📈 성능 최적화
+## 📚 문서
 
-- **CSS 최적화**: Critical CSS 인라인화
-- **JavaScript**: 이벤트 위임 패턴 활용
-- **애니메이션**: GPU 가속 transform 사용
-- **이미지**: 최적화된 아이콘 폰트
+- [Vercel 배포 가이드](./VERCEL_DEPLOYMENT.md)
+- [개발 가이드](./DEVELOPMENT.md)
+- [Admin 자격 증명](./ADMIN_CREDENTIALS.md)
+- [미팅 협업 가이드](./MEETING_COLLABORATION_GUIDE.md)
+- [Claude 작업 기록](./CLAUDE.md)
 
-## 🌟 향후 개발 계획
+## 🤝 기여
 
-- [ ] PWA 지원 (Service Worker)
-- [ ] 다크 모드 지원
-- [ ] 다국어 지원 (i18n)
-- [ ] 소셜 로그인 연동
-- [ ] 실제 백엔드 API 연동
-- [ ] 사용자 세션 관리
-- [ ] 비밀번호 찾기 기능
-- [ ] 이메일 인증 시스템
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 라이선스
+
+MIT License
+
+## 👨‍💻 개발자
+
+**devswha**
+
+## 🔗 링크
+
+- **Production**: https://pomodoro-beryl-ten.vercel.app
+- **Vercel Dashboard**: https://vercel.com/dashboard
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/lasoynzegoiktncjzqad
 
 ---
 
-**개발자**: devswha  
-**라이선스**: MIT  
-**마지막 업데이트**: 2025-08-13
+**마지막 업데이트**: 2025-10-07
+**버전**: 1.0.2
+**배포 플랫폼**: Vercel ✅
 
-> 이 프로젝트는 MCP(Model Context Protocol)를 활용하여 Figma 디자인을 완벽하게 구현한 iOS 스타일 웹 애플리케이션입니다. 🚀
+> Next.js와 Supabase를 활용한 실시간 협업 포모도로 타이머 애플리케이션 🍅

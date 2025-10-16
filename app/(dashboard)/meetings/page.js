@@ -419,6 +419,12 @@ const MeetingDescription = styled.p`
   line-height: 1.4;
 `;
 
+const MeetingParticipants = styled.div`
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+`;
+
 // Modal styles
 const ModalOverlay = styled.div`
   position: fixed;
@@ -566,45 +572,119 @@ const ModalButton = styled.button`
   `}
 `;
 
+const MeetingActions = styled.div`
+  margin-top: 1rem;
+`;
+
+const ActionButton = styled.button`
+  padding: 0.5rem 1rem;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #333333;
+  }
+`;
+
 const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
 
-const meetingColors = ['#000000', '#6c757d', '#dc3545', '#007bff', '#28a745', '#ffc107', '#17a2b8'];
+// 24시간 형식을 12시간 AM/PM 형식으로 변환
+const formatTime12Hour = (time24) => {
+  if (!time24) return '';
+
+  // time24는 "HH:MM" 또는 "HH:MM:SS" 형식
+  const [hourStr, minute] = time24.split(':');
+  let hour = parseInt(hourStr, 10);
+
+  if (hour === 0) {
+    return `12:${minute} AM`;
+  } else if (hour < 12) {
+    return `${hour}:${minute} AM`;
+  } else if (hour === 12) {
+    return `12:${minute} PM`;
+  } else {
+    return `${hour - 12}:${minute} PM`;
+  }
+};
 
 export default function MeetingsPage() {
   const router = useRouter();
-  const { currentUser } = useUser();
+  const { currentUser, sessionToken } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [meetings, setMeetings] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [selectedMeetingId, setSelectedMeetingId] = useState(null);
-  const [inviteUsername, setInviteUsername] = useState('');
   const [formData, setFormData] = useState({
     title: '',
     date: '',
     time: '',
     location: '',
-    attendees: '',
-    description: '',
-    visibility: 'private'
+    description: ''
   });
 
-  // Load meetings from localStorage
+  // Load meetings from Supabase API
   useEffect(() => {
-    if (currentUser) {
-      const savedMeetings = localStorage.getItem(`meetings_${currentUser.id}`);
-      if (savedMeetings) {
-        setMeetings(JSON.parse(savedMeetings));
-      }
+    if (currentUser && sessionToken) {
+      loadMeetings();
     }
-  }, [currentUser]);
+  }, [currentUser, sessionToken]);
 
-  // Save meetings to localStorage
-  const saveMeetings = (updatedMeetings) => {
-    if (currentUser) {
-      localStorage.setItem(`meetings_${currentUser.id}`, JSON.stringify(updatedMeetings));
-      setMeetings(updatedMeetings);
+  const loadMeetings = async () => {
+    try {
+      const response = await fetch('/api/meetings', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMeetings(data.meetings || []);
+      } else {
+        console.error('Failed to load meetings:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error loading meetings:', error);
+    }
+  };
+
+  // Create meeting via Supabase API
+  const createMeeting = async (meetingData) => {
+    try {
+      const response = await fetch('/api/meetings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify({
+          title: meetingData.title,
+          meeting_date: meetingData.date,
+          meeting_time: meetingData.time,
+          duration: 60,
+          description: meetingData.description,
+          location: meetingData.location
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Refresh meetings list
+        await loadMeetings();
+        return data.meeting;
+      } else {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create meeting');
+      }
+    } catch (error) {
+      console.error('Error creating meeting:', error);
+      throw error;
     }
   };
 
@@ -620,7 +700,6 @@ export default function MeetingsPage() {
       date: targetDate.toISOString().split('T')[0],
       time: '10:00',
       location: '',
-      attendees: '',
       description: ''
     });
     setShowModal(true);
@@ -634,7 +713,6 @@ export default function MeetingsPage() {
       date: '',
       time: '',
       location: '',
-      attendees: '',
       description: ''
     });
   };
@@ -646,49 +724,7 @@ export default function MeetingsPage() {
     }));
   };
 
-  // Handle invite user to meeting
-  const handleInviteUser = async () => {
-    if (!inviteUsername.trim()) {
-      alert('사용자명을 입력해주세요.');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('userToken');
-      const response = await fetch('/api/meetings/participants', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          meeting_id: selectedMeetingId,
-          username: inviteUsername
-        })
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert(`${inviteUsername}님을 모임에 초대했습니다!`);
-        setInviteUsername('');
-        setShowInviteModal(false);
-      } else {
-        alert(result.error || '초대에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('Invite error:', error);
-      alert('초대 중 오류가 발생했습니다.');
-    }
-  };
-
-  // Open invite modal
-  const handleOpenInviteModal = (meetingId) => {
-    setSelectedMeetingId(meetingId);
-    setShowInviteModal(true);
-  };
-
-  const handleSaveMeeting = () => {
+  const handleSaveMeeting = async () => {
     if (!formData.title.trim()) {
       alert('모임 제목을 입력해주세요.');
       return;
@@ -704,7 +740,6 @@ export default function MeetingsPage() {
       return;
     }
     
-    // Check if the meeting date/time is in the past
     const meetingDateTime = new Date(formData.date + 'T' + formData.time);
     const now = new Date();
     if (meetingDateTime < now) {
@@ -712,16 +747,44 @@ export default function MeetingsPage() {
       return;
     }
 
-    const newMeeting = {
-      id: Date.now().toString(),
-      ...formData,
-      color: meetingColors[Math.floor(Math.random() * meetingColors.length)],
-      createdAt: new Date().toISOString()
-    };
+    try {
+      await createMeeting(formData);
+      handleCloseModal();
+      alert('모임이 성공적으로 생성되었습니다!');
+    } catch (error) {
+      alert('모임 생성에 실패했습니다: ' + error.message);
+    }
+  };
 
-    const updatedMeetings = [...meetings, newMeeting];
-    saveMeetings(updatedMeetings);
-    handleCloseModal();
+  const handleJoinMeeting = async (meetingId) => {
+    if (!sessionToken) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/meetings/participants', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify({ meeting_id: meetingId })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || '모임 참가에 실패했습니다.');
+        return;
+      }
+
+      await loadMeetings();
+      alert('모임에 참가 신청되었습니다.');
+    } catch (error) {
+      console.error('Join meeting error:', error);
+      alert('모임 참가 중 오류가 발생했습니다.');
+    }
   };
 
   const getWeekStart = (date) => {
@@ -752,10 +815,7 @@ export default function MeetingsPage() {
       const day = new Date(weekStart);
       day.setDate(weekStart.getDate() + i);
       
-      const dayMeetings = meetings.filter(meeting => 
-        meeting.date === day.toISOString().split('T')[0]
-      );
-
+      const dayMeetings = meetings.filter(meeting => meeting.date === day.toISOString().split('T')[0]);
       const isToday = day.toDateString() === new Date().toDateString();
       
       days.push(
@@ -766,8 +826,13 @@ export default function MeetingsPage() {
         >
           <DayNumber>{day.getDate()}</DayNumber>
           {dayMeetings.map(meeting => (
-            <MeetingItem key={meeting.id} color={meeting.color}>
-              {meeting.time} {meeting.title}
+            <MeetingItem key={meeting.id}>
+              <div><strong>{formatTime12Hour(meeting.time)}</strong> {meeting.title}</div>
+              {meeting.participants && meeting.participants.length > 0 && (
+                <MeetingParticipants>
+                  {meeting.participants.map(p => p.displayName || p.username || '이름 없음').join(', ')}
+                </MeetingParticipants>
+              )}
             </MeetingItem>
           ))}
         </DayCell>
@@ -827,39 +892,30 @@ export default function MeetingsPage() {
                     <strong>날짜:</strong> {new Date(meeting.date).toLocaleDateString('ko-KR')}
                   </MeetingDetail>
                   <MeetingDetail>
-                    <strong>시간:</strong> {meeting.time}
+                    <strong>시간:</strong> {formatTime12Hour(meeting.time)}
                   </MeetingDetail>
                   {meeting.location && (
                     <MeetingDetail>
                       <strong>장소:</strong> {meeting.location}
                     </MeetingDetail>
                   )}
-                  {meeting.attendees && (
-                    <MeetingDetail>
-                      <strong>참석자:</strong> {meeting.attendees}
-                    </MeetingDetail>
-                  )}
                 </MeetingDetails>
                 {meeting.description && (
                   <MeetingDescription>{meeting.description}</MeetingDescription>
                 )}
-                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-                  <button
-                    onClick={() => handleOpenInviteModal(meeting.id)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      backgroundColor: '#000',
-                      color: '#fff',
-                      border: 'none',
-                      fontSize: '0.75rem',
-                      cursor: 'pointer',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em'
-                    }}
-                  >
-                    팀원 초대
-                  </button>
-                </div>
+                <MeetingDetail>
+                  <strong>참석자:</strong>{' '}
+                  {meeting.participants && meeting.participants.length > 0
+                    ? meeting.participants.map(p => p.displayName || p.username || '이름 없음').join(', ')
+                    : '참석자가 없습니다.'}
+                </MeetingDetail>
+                {!meeting.isAttending && (
+                  <MeetingActions>
+                    <ActionButton onClick={() => handleJoinMeeting(meeting.id)}>
+                      참가하기
+                    </ActionButton>
+                  </MeetingActions>
+                )}
               </MeetingCard>
             ))
           )}
@@ -869,10 +925,10 @@ export default function MeetingsPage() {
       {showModal && (
         <ModalOverlay onClick={handleCloseModal}>
           <Modal onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>모임 일정 추가</ModalTitle>
-            
+            <ModalTitle>모임 만들기</ModalTitle>
+
             <FormGroup>
-              <FormLabel htmlFor="title">제목</FormLabel>
+              <FormLabel htmlFor="title">모임 제목</FormLabel>
               <FormInput
                 id="title"
                 type="text"
@@ -914,17 +970,6 @@ export default function MeetingsPage() {
             </FormGroup>
 
             <FormGroup>
-              <FormLabel htmlFor="attendees">참석자</FormLabel>
-              <FormInput
-                id="attendees"
-                type="text"
-                value={formData.attendees}
-                onChange={(e) => handleFormChange('attendees', e.target.value)}
-                placeholder="참석자 명단을 입력하세요"
-              />
-            </FormGroup>
-
-            <FormGroup>
               <FormLabel htmlFor="description">설명</FormLabel>
               <FormTextarea
                 id="description"
@@ -937,34 +982,6 @@ export default function MeetingsPage() {
             <ModalButtons>
               <ModalButton onClick={handleCloseModal}>취소</ModalButton>
               <ModalButton primary onClick={handleSaveMeeting}>저장</ModalButton>
-            </ModalButtons>
-          </Modal>
-        </ModalOverlay>
-      )}
-
-      {showInviteModal && (
-        <ModalOverlay onClick={() => setShowInviteModal(false)}>
-          <Modal onClick={(e) => e.stopPropagation()}>
-            <ModalTitle>팀원 초대</ModalTitle>
-
-            <FormGroup>
-              <FormLabel htmlFor="inviteUsername">사용자명</FormLabel>
-              <FormInput
-                id="inviteUsername"
-                type="text"
-                value={inviteUsername}
-                onChange={(e) => setInviteUsername(e.target.value)}
-                placeholder="초대할 사용자의 아이디를 입력하세요"
-              />
-            </FormGroup>
-
-            <ModalButtons>
-              <ModalButton onClick={() => setShowInviteModal(false)}>
-                취소
-              </ModalButton>
-              <ModalButton primary onClick={handleInviteUser}>
-                초대하기
-              </ModalButton>
             </ModalButtons>
           </Modal>
         </ModalOverlay>

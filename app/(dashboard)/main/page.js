@@ -490,7 +490,7 @@ const NoSessionSubtitle = styled.div`
   }
 `;
 
-const StartPomodoroButton = styled.button`
+const StartSTEPButton = styled.button`
   background: var(--primary-blue);
   color: white;
   border: none;
@@ -560,7 +560,7 @@ const SessionGoal = styled.div`
   color: var(--text-secondary);
 `;
 
-const PomodoroTimer = styled.div`
+const STEPTimer = styled.div`
   text-align: center;
 `;
 
@@ -589,13 +589,13 @@ const ProgressBar = styled.div`
   transition: width 1s ease-out;
 `;
 
-const PomodoroActions = styled.div`
+const STEPActions = styled.div`
   display: flex;
   gap: 12px;
   justify-content: center;
 `;
 
-const PomodoroButton = styled.button`
+const STEPButton = styled.button`
   flex: 1;
   max-width: 120px;
   height: 44px;
@@ -716,22 +716,55 @@ const QuickActionButton = styled.button`
 
 // UpcomingMeetings Component
 const UpcomingMeetings = () => {
-  const { currentUser, userManager } = useUser();
+  const { currentUser, sessionToken } = useUser();
   const [upcomingMeetings, setUpcomingMeetings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (currentUser && userManager) {
-      // Simulate loading state for better UX
-      setIsLoading(true);
-      setTimeout(() => {
-        const meetings = userManager.getUpcomingMeetings(currentUser.id, 3);
-        setUpcomingMeetings(meetings);
-        setIsLoading(false);
-      }, 300);
+    if (currentUser && sessionToken) {
+      loadUpcomingMeetings();
     }
-  }, [currentUser, userManager]);
+  }, [currentUser, sessionToken]);
+
+  const loadUpcomingMeetings = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/meetings', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sessionToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const meetings = data.meetings || [];
+        // Get next 3 upcoming meetings
+        const now = new Date();
+        const upcoming = meetings
+          .filter(meeting => {
+            const meetingDate = new Date(meeting.meeting_date + ' ' + meeting.meeting_time);
+            return meetingDate > now;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(a.meeting_date + ' ' + a.meeting_time);
+            const dateB = new Date(b.meeting_date + ' ' + b.meeting_time);
+            return dateA - dateB;
+          })
+          .slice(0, 3);
+        setUpcomingMeetings(upcoming);
+      } else {
+        console.error('Failed to load meetings');
+        setUpcomingMeetings([]);
+      }
+    } catch (error) {
+      console.error('Error loading meetings:', error);
+      setUpcomingMeetings([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatDateTime = (date, time) => {
     const meetingDate = new Date(date);
@@ -795,7 +828,13 @@ const UpcomingMeetings = () => {
 
 export default function MainPage() {
   const router = useRouter();
-  const { currentUser, activeSession, logoutUser, getUserStats, completePomodoroSession, stopPomodoroSession } = useUser();
+  const {
+    currentUser,
+    activeSession,
+    logoutUser,
+    loadActiveSession,
+    stopSTEPSession
+  } = useUser();
   const { isConnected, connectionStatus } = useRealtime();
   const [userStats, setUserStats] = useState(null);
   const [timeRemaining, setTimeRemaining] = useState(0);
@@ -826,35 +865,47 @@ export default function MainPage() {
     if (!activeSession || isPaused) return;
 
     const now = new Date();
-    const endTime = new Date(activeSession.endTime);
-    const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+    const startTime = new Date(activeSession.start_time);
+    const duration = activeSession.duration || 25; // minutes
+    const elapsed = Math.floor((now - startTime) / 1000); // seconds
+    const totalSeconds = duration * 60;
+    const remaining = Math.max(0, totalSeconds - elapsed);
 
     setTimeRemaining(remaining);
 
     if (remaining === 0) {
       // Session completed
-      completePomodoroSession();
       setIsTimerRunning(false);
+      stopSTEPSession();
     }
-  }, [activeSession, isPaused, completePomodoroSession]);
+  }, [activeSession, isPaused, stopSTEPSession]);
 
   useEffect(() => {
     if (currentUser) {
       setIsLoading(true);
+      // Load active session if exists
+      loadActiveSession(currentUser.id);
+
       // Simulate loading for better UX
       setTimeout(() => {
-        const stats = getUserStats();
-        setUserStats(stats);
+        // For demo, use mock stats or fetch from database
+        const mockStats = {
+          todayMinutes: 0,
+          todayPomodoros: 0,
+          weeklyMinutes: 0,
+          completionRate: 0
+        };
+        setUserStats(mockStats);
         setIsLoading(false);
       }, 500);
     }
-  }, [currentUser, getUserStats]);
+  }, [currentUser]);
 
   useEffect(() => {
     if (activeSession && !isPaused) {
       setIsTimerRunning(true);
+      updateTimer(); // Initial call to set time immediately
       const interval = setInterval(updateTimer, 1000);
-      updateTimer(); // Initial call
       return () => clearInterval(interval);
     } else {
       setIsTimerRunning(false);
@@ -874,12 +925,12 @@ export default function MainPage() {
     router.push('/monthly');
   };
 
-  const handlePomodoroStart = () => {
-    router.push('/pomodoro-start');
+  const handleSTEPStart = () => {
+    router.push('/step-start');
   };
 
-  const handlePomodoroRanking = () => {
-    router.push('/pomodoro-ranking');
+  const handleSTEPRanking = () => {
+    router.push('/step-ranking');
   };
 
   const handleEvent = () => {
@@ -890,15 +941,18 @@ export default function MainPage() {
     setIsPaused(!isPaused);
   };
 
-  const handleStopSession = () => {
+  const handleStopSession = async () => {
     if (activeSession) {
-      stopPomodoroSession();
+      await stopSTEPSession();
+      setIsTimerRunning(false);
+      setIsPaused(false);
+      setTimeRemaining(0);
     }
   };
 
   const getCompletionRate = () => {
-    if (!userStats || userStats.totalSessions === 0) return 0;
-    return Math.round((userStats.completedSessions / userStats.totalSessions) * 100);
+    // For demo, return a static completion rate or 0
+    return userStats?.completionRate || 0;
   };
 
   const getTimerProgress = () => {
@@ -923,6 +977,8 @@ export default function MainPage() {
     );
   }
 
+  const userDisplayName = currentUser.display_name || currentUser.username || currentUser.id;
+
   // Show real-time dashboard if enabled
   if (showRealtimeDashboard) {
     return (
@@ -930,10 +986,10 @@ export default function MainPage() {
         <UserHeader>
           <UserInfo>
             <UserAvatar gradient={getUserGradient(currentUser.id)}>
-              {currentUser.id.charAt(0).toUpperCase()}
+              {userDisplayName.charAt(0).toUpperCase()}
             </UserAvatar>
             <UserDetails>
-              <UserName>{currentUser.id} - Real-time Dashboard</UserName>
+              <UserName>{userDisplayName} - Real-time Dashboard</UserName>
               <UserWelcome>
                 {connectionStatus === 'connected' && '🟢 Connected'}
                 {connectionStatus === 'connecting' && '🟡 Connecting...'}
@@ -967,10 +1023,10 @@ export default function MainPage() {
       <UserHeader>
         <UserInfo>
           <UserAvatar gradient={getUserGradient(currentUser.id)}>
-            {currentUser.id.charAt(0).toUpperCase()}
+            {userDisplayName.charAt(0).toUpperCase()}
           </UserAvatar>
           <UserDetails>
-            <UserName>{currentUser.id}</UserName>
+            <UserName>{userDisplayName}</UserName>
             <UserWelcome>안녕하세요! 👋</UserWelcome>
           </UserDetails>
         </UserInfo>
@@ -1043,15 +1099,9 @@ export default function MainPage() {
         </StatsSection>
 
         <ActionsSection>
-          <ActionCard onClick={handlePomodoroStart}>
-            <ActionIcon>⏰</ActionIcon>
-            <ActionTitle>뽀모도로 시작하기</ActionTitle>
-            <ActionDescription>집중력 향상을 위한 시간 관리 기법</ActionDescription>
-          </ActionCard>
-
-          <ActionCard onClick={handlePomodoroRanking}>
+          <ActionCard onClick={handleSTEPRanking}>
             <ActionIcon>🏆</ActionIcon>
-            <ActionTitle>뽀모도로 랭킹</ActionTitle>
+            <ActionTitle>STEP 랭킹</ActionTitle>
             <ActionDescription>다른 사용자들과 비교해보세요</ActionDescription>
           </ActionCard>
 
@@ -1060,24 +1110,18 @@ export default function MainPage() {
             <ActionTitle>진행중인 이벤트</ActionTitle>
             <ActionDescription>특별한 혜택과 도전 과제</ActionDescription>
           </ActionCard>
-
-          <ActionCard onClick={() => router.push('/meetings')}>
-            <ActionIcon>📅</ActionIcon>
-            <ActionTitle>모임 일정</ActionTitle>
-            <ActionDescription>모임 일정을 확인하고 관리하세요</ActionDescription>
-          </ActionCard>
         </ActionsSection>
 
         <TodaySection>
-          <TodayTitle>진행중인 뽀모도로</TodayTitle>
+          <TodayTitle>진행중인 STEP</TodayTitle>
           {!activeSession ? (
             <NoActiveSession>
               <NoSessionIcon>⏰</NoSessionIcon>
-              <NoSessionText>진행중인 뽀모도로가 없습니다</NoSessionText>
-              <NoSessionSubtitle>뽀모도로를 시작해서 집중력을 높여보세요!</NoSessionSubtitle>
-              <StartPomodoroButton onClick={handlePomodoroStart}>
-                뽀모도로 시작하기
-              </StartPomodoroButton>
+              <NoSessionText>진행중인 STEP가 없습니다</NoSessionText>
+              <NoSessionSubtitle>STEP를 시작해서 집중력을 높여보세요!</NoSessionSubtitle>
+              <StartSTEPButton onClick={handleSTEPStart}>
+                STEP 시작하기
+              </StartSTEPButton>
             </NoActiveSession>
           ) : (
             <ActiveSession>
@@ -1085,20 +1129,20 @@ export default function MainPage() {
                 <SessionTitle>{activeSession.title}</SessionTitle>
                 <SessionGoal>{activeSession.goal}</SessionGoal>
               </SessionInfo>
-              <PomodoroTimer>
+              <STEPTimer>
                 <TimerDisplay>{formatTime(timeRemaining)}</TimerDisplay>
                 <TimerProgress>
                   <ProgressBar progress={getTimerProgress()} />
                 </TimerProgress>
-              </PomodoroTimer>
-              <PomodoroActions>
-                <PomodoroButton className="pause" onClick={handlePauseSession}>
+              </STEPTimer>
+              <STEPActions>
+                <STEPButton className="pause" onClick={handlePauseSession}>
                   {isPaused ? '재시작' : '일시정지'}
-                </PomodoroButton>
-                <PomodoroButton className="stop" onClick={handleStopSession}>
+                </STEPButton>
+                <STEPButton className="stop" onClick={handleStopSession}>
                   종료
-                </PomodoroButton>
-              </PomodoroActions>
+                </STEPButton>
+              </STEPActions>
             </ActiveSession>
           )}
         </TodaySection>

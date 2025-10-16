@@ -180,13 +180,13 @@ export default function OnboardingPage() {
   };
 
   const handleStart = () => {
-    router.push('/pomodoro-start');
+    router.push('/step-start');
   };
 
   const onboardingSteps = [
     {
       number: 1,
-      title: "뽀모도로 타이머란?",
+      title: "STEP 타이머란?",
       description: "25분 집중 + 5분 휴식을 반복하는 시간 관리 기법입니다. 집중력을 높이고 효율적으로 일할 수 있도록 도와줍니다.",
       features: [
         {
@@ -202,14 +202,14 @@ export default function OnboardingPage() {
         {
           icon: "🔄",
           title: "4회 반복 후 긴 휴식",
-          desc: "4번의 뽀모도로 후 15-30분의 긴 휴식을 가지세요"
+          desc: "4번의 STEP 후 15-30분의 긴 휴식을 가지세요"
         }
       ]
     },
     {
       number: 2,
       title: "타이머 사용하기",
-      description: "간단한 단계로 뽀모도로 타이머를 시작할 수 있습니다.",
+      description: "간단한 단계로 STEP 타이머를 시작할 수 있습니다.",
       features: [
         {
           icon: "📝",
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
     {
       number: 3,
       title: "통계 확인하기",
-      description: "완료한 뽀모도로 세션을 통해 나의 집중 패턴을 분석해보세요.",
+      description: "완료한 STEP 세션을 통해 나의 집중 패턴을 분석해보세요.",
       features: [
         {
           icon: "📊",
@@ -255,7 +255,7 @@ export default function OnboardingPage() {
   return (
     <OnboardingContainer>
       <Header>
-        <HeaderTitle>뽀모도로 사용법</HeaderTitle>
+        <HeaderTitle>STEP 사용법</HeaderTitle>
         <CloseButton onClick={handleClose}>✕</CloseButton>
       </Header>
       

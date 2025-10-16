@@ -4,8 +4,8 @@ import './globals.css';
 import ClientLayout from '../lib/components/ClientLayout';
 
 export const metadata = {
-  title: 'Pomodoro Timer v1.0.1 - Real-time Sync',
-  description: 'Modern React-based pomodoro timer with real-time sync, multi-device support, and collaborative features',
+  title: 'STEP Timer v1.0.2 - Real-time Sync',
+  description: 'Modern React-based STEP timer with real-time sync, multi-device support, and collaborative features',
   viewport: 'width=device-width, initial-scale=1',
 };
 

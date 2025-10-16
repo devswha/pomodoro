@@ -245,7 +245,7 @@ export default function LoginPage() {
   if (authLoading) {
     return (
       <LoginContainer>
-        <VersionDisplay>v1.0.1</VersionDisplay>
+        <VersionDisplay>v1.0.2</VersionDisplay>
         <MainContent>
           <div style={{ textAlign: 'center', padding: '2rem' }}>
             <LoadingSpinner />
@@ -317,11 +317,11 @@ export default function LoginPage() {
 
   return (
     <LoginContainer>
-      <VersionDisplay>v1.0.1</VersionDisplay>
+      <VersionDisplay>v1.0.2</VersionDisplay>
       
       <MainContent>
         <HeaderSection>
-          <BrandTitle>POMODORO</BrandTitle>
+          <BrandTitle>STEP</BrandTitle>
           <BrandSubtitle>집중력 향상을 위한 시간 관리</BrandSubtitle>
         </HeaderSection>
 

@@ -46,7 +46,7 @@ export default function HomePage() {
         marginBottom: '1rem',
         color: '#000'
       }}>
-        POMODORO TIMER
+        STEP TIMER
       </h1>
       <p style={{
         fontSize: '1.125rem',

@@ -289,17 +289,18 @@ const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
 export default function MonthlyPage() {
   const router = useRouter();
-  const { currentUser, getUserSessions } = useUser();
+  const { currentUser } = useUser();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
   const [userSessions, setUserSessions] = useState([]);
 
   useEffect(() => {
     if (currentUser) {
-      const sessions = getUserSessions();
-      setUserSessions(sessions);
+      // Mock sessions for now - replace with actual API calls
+      const mockSessions = [];
+      setUserSessions(mockSessions);
     }
-  }, [currentUser, getUserSessions]);
+  }, [currentUser]);
 
   // Generate calendar days for the current month
   const calendarDays = useMemo(() => {

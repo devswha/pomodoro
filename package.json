@@ -1,6 +1,6 @@
 {
-  "name": "pomodoro-timer-react",
-  "version": "1.0.1",
+  "name": "step-timer-react",
+  "version": "1.0.2",
   "type": "module",
   "private": true,
   "dependencies": {
@@ -26,12 +26,11 @@
     "zod": "^4.1.5"
   },
   "scripts": {
-    "dev": "next dev -p 3001",
-    "dev:3000": "next dev",
-    "build": "BUILD_TYPE=static next build && next export",
-    "build:api": "next build",
-    "start": "next start -p 3001",
-    "start:3000": "next start",
+    "dev": "next dev",
+    "dev:3001": "next dev -p 3001 -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start",
+    "start:3001": "next start -p 3001",
     "lint": "next lint",
     "export": "next export",
     "test:api": "node scripts/test-api.js",
@@ -49,7 +48,8 @@
     "mcp:deploy": "node scripts/deploy-with-mcp.js",
     "mcp:deploy:force": "node scripts/deploy-with-mcp.js --force",
     "mcp:deploy:production": "node scripts/deploy-with-mcp.js --production",
-    "mcp:monitor": "node scripts/deploy-with-mcp.js --monitor"
+    "mcp:monitor": "node scripts/deploy-with-mcp.js --monitor",
+    "mcp:test:agents": "node scripts/test-new-mcp-agents.js"
   },
   "eslintConfig": {
     "extends": [

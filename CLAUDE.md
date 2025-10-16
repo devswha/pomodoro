@@ -1,562 +1,333 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+# Pomodoro Timer - Claude 작업 기록
 
 ## 프로젝트 개요
 
-**POMODORO TIMER v4.0.0** - 미니멀한 흑백 디자인의 현대적인 Next.js 기반 뽀모도로 타이머 애플리케이션. 기존 vanilla HTML/CSS/JavaScript 버전에서 반응형 Next.js 웹 애플리케이션으로 완전히 다시 작성되었습니다.
+Next.js 기반의 STEP Timer (Pomodoro) 애플리케이션
+- **Frontend**: Next.js 14.2.32 (App Router)
+- **Backend**: Next.js API Routes
+- **Database**: Supabase (PostgreSQL)
+- **Styling**: Styled Components
+- **Deployment**: Vercel ✅
 
-## 라이브 개발 환경
+---
 
-**로컬 개발**: http://localhost:3001 (기본) 또는 http://localhost:3000
-- Next.js 개발 서버와 핫 리로딩
-- 모바일, 태블릿, 데스크톱 반응형 디자인
-- 미니멀한 흑백 UI 디자인
-- API Routes 및 서버 사이드 렌더링 지원
+## 🚀 배포 정보 (Vercel)
 
-## 개발 환경 설정
+### 프로덕션 URL
+- **메인**: https://pomodoro-beryl-ten.vercel.app
+- **대체**: https://pomodoro-devshwas-projects.vercel.app
 
-현대적인 도구와 핫 리로딩을 사용하는 Next.js 14 애플리케이션입니다.
+### Admin 페이지
+- **URL**: https://pomodoro-beryl-ten.vercel.app/admin
+- **Password**: `admin123`
 
-## Essential Development Commands
+### API 엔드포인트
+- `GET /api/health` - 헬스 체크
+- `GET /api/admin/dashboard` - Admin 대시보드 통계
+- `GET /api/admin/export-users` - 사용자 데이터 내보내기
+- `POST /api/auth/login` - 로그인
+- `POST /api/auth/signup` - 회원가입
+- `GET /api/users` - 사용자 목록 (인증 필요)
 
-### Core Development
+---
+
+## 💻 로컬 개발
+
+### 개발 서버 실행
 ```bash
-# Install dependencies
-npm install
-
-# Start development server (port 3001 default)
 npm run dev
-npm run dev:3000          # Alternative port 3000
+```
+→ http://localhost:3000
 
-# Production builds
-npm run build             # Static export build
-npm run build:api         # API-enabled build
-npm start                 # Start production server
+### 환경 변수
+`.env.local` 파일 필요:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://lasoynzegoiktncjzqad.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 ```
 
-### Environment & Database
+### 주요 스크립트
 ```bash
-# Validate environment setup
-npm run validate:environment
-
-# Test Supabase connection
-npm run test:api
-
-# Database operations
-npm run setup:database
-npm run migrate:data
+npm run dev        # 개발 서버 (포트 3000)
+npm run build      # 프로덕션 빌드
+npm run start      # 프로덕션 서버
+npm run lint       # ESLint 실행
 ```
 
-### Deployment & Testing
+---
+
+## 📁 프로젝트 구조
+
+```
+pomodoro/
+├── app/
+│   ├── api/                           ← Next.js API Routes
+│   │   ├── lib/
+│   │   │   ├── supabase.js           # Supabase 클라이언트
+│   │   │   └── auth.js               # 인증 헬퍼
+│   │   ├── health/route.js           # 헬스 체크
+│   │   ├── admin/
+│   │   │   ├── dashboard/route.js    # Admin 대시보드 API
+│   │   │   └── export-users/route.js # 사용자 내보내기 API
+│   │   ├── auth/
+│   │   │   ├── login/route.js        # 로그인 API
+│   │   │   └── signup/route.js       # 회원가입 API
+│   │   └── users/route.js            # 사용자 목록 API
+│   ├── (auth)/                        ← 인증 페이지
+│   │   ├── login/page.js
+│   │   └── signup/page.js
+│   ├── (dashboard)/                   ← 대시보드 페이지
+│   │   ├── main/page.js
+│   │   ├── meetings/page.js
+│   │   ├── monthly/page.js
+│   │   ├── mypage/page.js
+│   │   ├── step-start/page.js
+│   │   └── step-ranking/page.js
+│   ├── (admin)/                       ← Admin 페이지
+│   │   └── admin/
+│   │       ├── page.js               # Admin 대시보드
+│   │       ├── users/page.js         # 사용자 관리
+│   │       └── analytics/page.js     # 분석
+│   ├── layout.js                      # 루트 레이아웃
+│   └── page.js                        # 홈페이지
+├── lib/
+│   ├── contexts/                      # React Context
+│   │   ├── UserContext.js
+│   │   └── RealtimeContext.js
+│   ├── components/                    # 공통 컴포넌트
+│   ├── hooks/                         # Custom Hooks
+│   ├── services/                      # 서비스 레이어
+│   └── supabase/
+│       └── client.js                  # Supabase 클라이언트 (브라우저)
+├── database/
+│   └── complete-schema.sql           # Supabase 스키마
+├── next.config.js                     # Next.js 설정
+├── package.json
+├── vercel.json                        # Vercel 설정
+└── .npmrc                             # NPM 설정
+```
+
+---
+
+## 🔧 기술 스택
+
+### Frontend
+- **Framework**: Next.js 14.2.32 (App Router)
+- **React**: 18.3.1
+- **Styling**: Styled Components 5.3.9
+- **State Management**: React Context API
+- **Charts**: Chart.js + react-chartjs-2
+
+### Backend
+- **API**: Next.js API Routes (App Router)
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Custom token-based auth with Supabase
+- **Realtime**: Supabase Realtime
+
+### Development
+- **Package Manager**: npm
+- **Node.js**: v22.17.1 (권장)
+- **Linting**: ESLint
+- **TypeScript**: 5.9.2 (devDependency)
+
+### Deployment
+- **Platform**: Vercel ✅
+- **CI/CD**: Git push → 자동 배포
+- **Environment**: Serverless Functions
+
+---
+
+## 📊 데이터베이스 (Supabase)
+
+### 주요 테이블
+- `users` - 사용자 정보
+- `auth_sessions` - 인증 세션
+- `step_sessions` - 포모도로 세션
+- `meetings` - 미팅 정보
+- `meeting_participants` - 미팅 참가자
+
+### 연결 정보
+- **URL**: https://lasoynzegoiktncjzqad.supabase.co
+- **Project ID**: lasoynzegoiktncjzqad
+
+---
+
+## 🔐 인증 시스템
+
+### 인증 방식
+- Custom token-based authentication
+- Session tokens stored in `auth_sessions` table
+- 24시간 만료
+
+### 토큰 사용
+- `x-user-token` 헤더 또는 `Authorization: Bearer {token}`
+- Admin 엔드포인트는 인증 불필요 (프론트엔드 password 보호)
+
+---
+
+## 🎯 주요 기능
+
+### 1. STEP Timer (Pomodoro)
+- 25분 타이머
+- 세션 추적 및 통계
+- 실시간 동기화 (Supabase Realtime)
+
+### 2. 미팅 협업
+- 미팅 생성 및 참가
+- 실시간 참가자 상태
+- 미팅 히스토리
+
+### 3. 통계 및 랭킹
+- 개인 통계
+- 월간 통계
+- 전체 랭킹
+
+### 4. Admin 대시보드
+- 사용자 관리
+- 세션 통계
+- 실시간 활동 모니터링
+
+---
+
+## 🚀 배포 히스토리
+
+### 2025-10-07: Vercel 마이그레이션
+- **이전**: Netlify (Static Export + Functions)
+- **이후**: Vercel (Next.js API Routes)
+- **변경사항**:
+  - `output: 'export'` 제거
+  - Netlify Functions → Next.js API Routes 전환
+  - 개발 환경 단순화: `netlify dev` → `next dev`
+  - 백업: `netlify.backup/`, `netlify.toml.backup`
+
+### 주요 개선사항
+1. 개발 환경 단순화
+2. API Routes 네이티브 지원
+3. 서버 사이드 기능 활성화
+4. 자동 배포 (Git push)
+
+---
+
+## 📝 환경 변수 설정
+
+### Vercel 환경 변수
 ```bash
-# Deploy to production
-npm run deploy
-npm run mcp:deploy:production
-
-# MCP deployment with monitoring
-npm run mcp:test
-npm run mcp:deploy:force
-npm run mcp:monitor
-
-# Health checks
-npm run health:check
+# Vercel CLI로 설정
+vercel env add NEXT_PUBLIC_SUPABASE_URL production
+vercel env add NEXT_PUBLIC_SUPABASE_ANON_KEY production
+vercel env add SUPABASE_SERVICE_ROLE_KEY production
 ```
 
-### Legacy Support (React version in /src)
+### 로컬 개발 환경
+`.env.local` 파일:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://lasoynzegoiktncjzqad.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+NEXT_PUBLIC_APP_VERSION=1.0.2
+```
+
+---
+
+## 🔄 Git 워크플로우
+
+### 자동 배포
 ```bash
-npm run legacy:start     # Legacy React dev server
-npm run legacy:build     # Legacy React build
+git add .
+git commit -m "Update feature"
+git push origin main
 ```
+→ Vercel에서 자동으로 빌드 & 배포
 
-## 아키텍처 및 현재 구현
-
-### 1. Next.js 14 애플리케이션 구조 (App Router)
-```
-app/
-├── (auth)/             # 인증 라우트 그룹
-│   ├── login/          # 로그인 페이지
-│   │   └── page.js
-│   └── signup/         # 회원가입 페이지
-│       └── page.js
-├── (dashboard)/        # 대시보드 라우트 그룹
-│   ├── layout.js       # 대시보드 공통 레이아웃
-│   ├── main/           # 메인 대시보드
-│   │   └── page.js
-│   ├── meetings/       # 미팅 스케줄링
-│   │   └── page.js
-│   ├── mypage/         # 사용자 프로필 및 통계
-│   │   └── page.js
-│   ├── pomodoro-ranking/ # 랭킹 페이지
-│   │   └── page.js
-│   ├── pomodoro-start/ # 뽀모도로 시작
-│   │   └── page.js
-│   └── monthly/        # 월별 캘린더
-│       └── page.js
-├── api/                # Next.js API Routes
-│   ├── auth/           # 인증 API
-│   ├── sessions/       # 세션 관리 API
-│   ├── meetings/       # 미팅 API
-│   └── users/          # 사용자 관리 API
-├── clear-data/         # 데이터 초기화 페이지
-│   └── page.js
-├── layout.js           # 루트 레이아웃
-├── page.js             # 홈 페이지
-└── globals.css         # 글로벌 스타일
-
-lib/
-├── components/         # 재사용 가능한 UI 컴포넌트
-├── contexts/           # React Context
-│   └── UserContext.js  # 사용자 상태 관리
-├── services/           # 비즈니스 로직
-│   └── UserManager.js  # 데이터 관리
-├── supabase/           # Supabase 설정
-└── utils/              # 유틸리티 함수
-```
-
-### 2. 데이터 관리 시스템 (Supabase PostgreSQL)
-
-**중요: Supabase 클라우드 데이터베이스**
-이 애플리케이션은 **Supabase PostgreSQL 데이터베이스**를 사용하여 일관성 있는 사용자 데이터 관리를 제공합니다. localStorage는 Supabase 연결 실패 시에만 fallback으로 사용됩니다.
-
-#### 핵심 데이터베이스 테이블:
-```sql
--- 1. 사용자 테이블 (인증 및 프로필)
-public.users {
-  id: UUID (Primary Key)
-  username: VARCHAR(50) UNIQUE
-  display_name: VARCHAR(100)
-  email: VARCHAR(255) UNIQUE
-  password_hash: TEXT
-  created_at: TIMESTAMPTZ
-  last_login: TIMESTAMPTZ
-}
-
--- 2. 사용자 설정 테이블
-public.user_preferences {
-  id: UUID (Primary Key)
-  user_id: UUID (Foreign Key)
-  default_pomodoro_length: INTEGER (25분)
-  break_length: INTEGER (5분)
-  weekly_goal: INTEGER (140분)
-  theme: VARCHAR(20)
-  sound_enabled: BOOLEAN
-}
-
--- 3. 사용자 통계 테이블
-public.user_stats {
-  id: UUID (Primary Key)
-  user_id: UUID (Foreign Key)
-  total_sessions: INTEGER
-  completed_sessions: INTEGER
-  total_minutes: INTEGER
-  streak_days: INTEGER
-  completion_rate: DECIMAL(5,2)
-  monthly_stats: JSONB
-  daily_stats: JSONB
-}
-
--- 4. 뽀모도로 세션 테이블
-public.pomodoro_sessions {
-  id: UUID (Primary Key)
-  user_id: UUID (Foreign Key)
-  title: VARCHAR(255)
-  duration: INTEGER
-  start_time: TIMESTAMPTZ
-  end_time: TIMESTAMPTZ
-  status: VARCHAR(20) -- 'active', 'completed', 'stopped'
-  is_active: BOOLEAN
-}
-
--- 5. 미팅 테이블
-public.meetings {
-  id: UUID (Primary Key)
-  user_id: UUID (Foreign Key)
-  title: VARCHAR(255)
-  meeting_date: DATE
-  meeting_time: TIME
-  duration: INTEGER
-  status: VARCHAR(20)
-}
-
--- 6. 인증 세션 테이블
-public.auth_sessions {
-  id: UUID (Primary Key)
-  user_id: UUID (Foreign Key)
-  session_token: VARCHAR(128)
-  expires_at: TIMESTAMPTZ
-  is_active: BOOLEAN
-}
-```
-
-#### 데이터 보안 및 격리:
-- **Row Level Security (RLS)**: 각 사용자는 자신의 데이터만 접근 가능
-- **실시간 동기화**: Supabase Realtime을 통한 실시간 데이터 업데이트
-- **자동 백업**: Supabase 클라우드 자동 백업 및 복구
-- **API 보안**: JWT 토큰 기반 인증 및 권한 관리
-- **Fallback 지원**: Supabase 연결 실패 시 localStorage 자동 전환
-
-### 3. 핵심 파일 구조
-
-#### Next.js 페이지 및 컴포넌트
-- **`app/layout.js`** - 루트 레이아웃 및 메타데이터
-- **`app/(auth)/login/page.js`** - 흑백 디자인의 미니멀한 로그인
-- **`app/(auth)/signup/page.js`** - 단일 단계 회원가입 (아이디, 비밀번호, 확인)
-- **`app/(dashboard)/main/page.js`** - 통계와 활성 타이머가 있는 대시보드
-- **`app/(dashboard)/meetings/page.js`** - 미팅 스케줄링 시스템
-- **`lib/contexts/UserContext.js`** - 사용자 상태 관리를 위한 React Context
-- **`lib/services/UserManager.js`** - 핵심 데이터 관리 클래스
-
-#### API Routes
-- **`app/api/auth/`** - 인증 관련 API (로그인, 회원가입, 로그아웃)
-- **`app/api/sessions/`** - 뽀모도로 세션 관리 API
-- **`app/api/meetings/`** - 미팅 스케줄링 API
-- **`app/api/users/`** - 사용자 프로필 및 통계 API
-
-#### 데이터베이스 및 백엔드
-- **`lib/supabase/client.js`** - Supabase 클라이언트 설정 및 인증
-- **`database/schema.sql`** - PostgreSQL 데이터베이스 스키마
-- **`database/rls-policies.sql`** - Row Level Security 정책
-- **`lib/services/SupabaseUserManager.js`** - Supabase 기반 사용자 관리
-
-#### 스타일링
-- **`app/globals.css`** - 미니멀한 흑백 테마
-- **Styled Components** - CSS-in-JS를 사용한 컴포넌트 레벨 스타일링
-
-## 구현된 주요 기능
-
-### 🔐 인증 시스템 (Supabase Auth)
-- **단일 단계 회원가입**: 한 페이지에서 아이디, 비밀번호, 비밀번호 확인
-- **JWT 토큰 인증**: Supabase Auth를 통한 안전한 세션 관리
-- **실시간 검증**: 시각적 피드백과 함께 라이브 폼 검증
-- **자동 세션 관리**: 토큰 자동 갱신 및 만료 처리
-- **간단한 로그인**: 미니멀한 로그인 폼
-- **자동 네비게이션**: 인증에서 대시보드까지 원활한 흐름
-
-### 🎨 미니멀 디자인
-- **흑백 테마**: 완전한 흑백 색상 팔레트
-- **직사각형 디자인**: 둥근 모서리 없는 깔끔한 기하학적 형태
-- **타이포그래피**: 대문자 라벨, 넓은 글자 간격
-- **포커스 상태**: 포커스 시 검은 테두리, 호버 시 투명도 변화
-
-### 📊 뽀모도로 기능 (실시간 동기화)
-- **타이머 관리**: 뽀모도로 세션 시작, 일시정지, 중지
-- **실시간 동기화**: Supabase Realtime을 통한 멀티 디바이스 동기화
-- **통계 추적**: 실시간 통계 및 완료율 자동 계산
-- **세션 기록**: PostgreSQL 기반 영구 세션 히스토리
-- **클라우드 백업**: 자동 클라우드 백업 및 복구
-- **사용자 격리**: RLS 정책을 통한 완전한 데이터 격리
-
-### 📱 반응형 디자인
-- **모바일 우선**: 터치 최적화 인터페이스
-- **데스크톱 확장**: "창 안의 창" 효과 없이 큰 화면에 적응
-- **깔끔한 레이아웃**: 방해 요소 없이 콘텐츠에 집중
-
-## 개발 가이드라인
-
-### Next.js 14 & 모던 JavaScript
-1. **App Router 사용**: Next.js 14의 최신 App Router 패턴
-2. **Server Components**: 서버 사이드 렌더링 및 정적 생성
-3. **API Routes**: 내장 API 엔드포인트 시스템
-4. **React Hooks 사용**: useState, useEffect가 있는 함수형 컴포넌트
-5. **상태를 위한 Context**: React Context API를 통한 글로벌 상태
-6. **Styled Components**: 컴포넌트 스타일링을 위한 CSS-in-JS
-7. **ES6+ 기능**: 모던 JavaScript 문법 및 패턴
-
-### 데이터 관리 규칙
-1. **Supabase 클라이언트 사용**: `lib/supabase/client.js`의 인증된 클라이언트 사용
-2. **RLS 정책 준수**: Row Level Security 정책에 따른 데이터 접근
-3. **API Routes 활용**: Next.js API Routes를 통한 서버 사이드 데이터 처리
-4. **실시간 동기화**: Supabase Realtime을 통한 데이터 실시간 업데이트
-5. **에러 처리**: 네트워크 오류 시 localStorage fallback 자동 전환
-6. **데이터 마이그레이션**: localStorage → Supabase 마이그레이션 지원
-
-### 코드 표준
-- **TypeScript 준비**: TypeScript 마이그레이션이 쉬운 코드 구조
-- **컴포넌트 클래스**: 정리된 서비스 클래스 (UserManager)
-- **에러 처리**: 적절한 try/catch 및 에러 상태
-- **성능**: 적절한 React 패턴으로 최적화된 리렌더링
-
-### 테스트 접근법
-- **사용자 플로우 테스트**: 회원가입 → 로그인 → 타이머 전체 플로우
-- **데이터베이스 연결 테스트**: Supabase 연결 상태 및 API 응답 확인
-- **실시간 동기화 테스트**: 멀티 디바이스 간 데이터 동기화 검증
-- **RLS 정책 테스트**: 사용자 권한 및 데이터 격리 확인
-- **Fallback 시나리오**: 오프라인 시 localStorage fallback 동작 테스트
-- **반응형 테스트**: 모바일, 태블릿, 데스크톱 테스트
-- **API 보안 테스트**: JWT 토큰 검증 및 권한 확인
-
-## 디자인 시스템
-
-### 색상 팔레트
-```css
-/* 흑백 테마 */
---primary: #000000     /* 검정 - 주요 액션, 텍스트 */
---secondary: #6c757d   /* 회색 - 보조 텍스트 */
---background: #ffffff  /* 흰색 - 메인 배경 */
---surface: #f8f9fa     /* 연한 회색 - 카드 배경 */
---border: #e9ecef      /* 연한 회색 - 테두리 */
---error: #dc3545       /* 빨강 - 에러 상태 */
-```
-
-### 타이포그래피 스케일
-```css
-/* 헤더 */
-h1: 2.5rem (모바일) → 3.5rem (데스크톱)
-h2: 2rem → 2.25rem  
-h3: 1.5rem → 1.75rem
-
-/* 본문 */
-body: 1rem → 1.125rem
-small: 0.875rem
-```
-
-### 컴포넌트 패턴
-- **버튼**: 검은 배경, 흰 텍스트, border-radius 없음
-- **입력**: 2px 테두리, border-radius 없음, 포커스 시 검은 테두리
-- **카드**: 흰 배경, 미묘한 회색 테두리
-- **레이아웃**: 여유로운 패딩, 깔끔한 간격
-
-## 성공 지표
-
-Next.js v4.0.0 구현으로 달성한 것:
-- ✅ **완전한 Next.js 14 마이그레이션** vanilla HTML/CSS/JS에서
-- ✅ **App Router 아키텍처** (최신 Next.js 패턴)
-- ✅ **API Routes 시스템** (풀스택 애플리케이션)
-- ✅ **미팅 스케줄링 기능** (실시간 협업)
-- ✅ **미니멀한 흑백 디자인**
-- ✅ **단일 단계 회원가입 플로우** (간소화된 UX)
-- ✅ **반응형 웹 디자인** (모바일에서 데스크톱까지)
-- ✅ **사용자 데이터 보존** (기존 모든 사용자 데이터 유지)
-- ✅ **모던 개발 스택** (Next.js 14 + React 18 + ES6 + CSS-in-JS)
-
-## 버전 히스토리
-
-- **v4.0.0** (현재): Next.js 14 기반 미니멀한 흑백 디자인 + 미팅 스케줄링
-- **v3.x** (레거시): iOS 스타일 디자인의 Vanilla HTML/CSS/JS (/legacy로 이동)
-
-## 중요 사항
-
-⚠️ **중요한 데이터베이스 경고**: Supabase PostgreSQL 데이터베이스가 기본 데이터 저장소입니다. 데이터베이스 스키마 변경 시 마이그레이션 스크립트를 작성하고 RLS 정책을 업데이트하세요. localStorage는 오프라인 fallback 전용입니다.
-
-🎨 **디자인 철학**: 이 버전은 미니멀리즘을 추구합니다 - 검정, 흰색, 회색만 사용. 에러를 위한 빨강을 제외하고는 색상 없음. 깔끔하고 기하학적이며 방해 요소 없는 디자인.
-
-🚀 **성능**: Next.js 14 앱은 서버 사이드 렌더링, 정적 생성, API Routes를 활용한 풀스택 아키텍처로 프로덕션 준비 코드 구조를 유지하면서 핫 리로딩으로 개발 속도를 최적화했습니다.
-
-## Critical Architecture Patterns
-
-### Hybrid Deployment Strategy
-This application supports two deployment modes via `BUILD_TYPE` environment variable:
-- **Static Export** (`BUILD_TYPE=static`): Pure static site generation, excludes API routes
-- **Full-Stack** (default): Includes API routes as Netlify Functions
-
-### Database Layer Architecture
-- **Primary**: Supabase PostgreSQL with RLS (Row Level Security)
-- **Fallback**: localStorage when Supabase unavailable
-- **Migration Path**: Automatic localStorage → Supabase data migration
-- **Connection Management**: Smart fallback with connection testing (`lib/supabase/client.js`)
-
-### Authentication Flow
-1. **JWT-based**: Supabase Auth with automatic token refresh
-2. **Session Management**: Persistent sessions across browser restarts
-3. **API Protection**: All API routes validate JWT tokens
-4. **Fallback Auth**: localStorage-based auth when offline
-
-### Real-time Features
-- **Live Sessions**: Multi-device pomodoro session synchronization
-- **Meeting Updates**: Real-time meeting status changes
-- **Statistics**: Live statistics updates across devices
-- **Presence**: User presence tracking in meetings
-
-### Environment Configuration Requirements
-Create `.env.local` with:
+### 배포 확인
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-JWT_SECRET=your_jwt_secret
+vercel ls                    # 배포 목록
+vercel inspect [URL]         # 배포 상세 정보
+vercel logs [URL]            # 로그 확인
 ```
 
-### Legacy Code Coexistence
-- **Active**: `/app` directory (Next.js 14 App Router)
-- **Legacy**: `/src` directory (React SPA, preserved for reference)
-- **Build Exclusion**: Webpack configured to exclude `/src` from Next.js builds
+---
 
-## MCP Agents and Tools Integration
+## 🐛 문제 해결
 
-This project extensively uses MCP (Model Context Protocol) with specialized agents for different aspects of development and operations.
-
-### Active MCP Agents
-
-#### 1. Figma MCP Agent (`mcp__figma__*`)
-**Role**: Design-to-code integration and visual design sync
-**Capabilities**:
-- **View Figma Nodes**: `mcp__figma__view_node(file_key, node_id)` - Direct access to design components
-- **Read Comments**: `mcp__figma__read_comments(file_key)` - Design feedback integration
-- **Post Comments**: `mcp__figma__post_comment(file_key, message, x, y)` - Development feedback to designers
-- **Reply to Comments**: `mcp__figma__reply_to_comment(file_key, comment_id, message)` - Design collaboration
-
-**Usage Examples**:
-```javascript
-// Access login page design
-mcp__figma__view_node({
-  file_key: "XcJJgcquIhThEvaNw9QOXC", 
-  node_id: "35:701"
-});
-
-// Get all design feedback
-const comments = await mcp__figma__read_comments({
-  file_key: "XcJJgcquIhThEvaNw9QOXC"
-});
-```
-
-#### 2. Supabase MCP Manager (`SupabaseMCPManager`)
-**Role**: Advanced database management with real-time monitoring
-**Location**: `lib/mcp/SupabaseMCPManager.js`
-**Capabilities**:
-- **Schema Deployment**: Automated database schema deployment with validation
-- **Real-time Subscriptions**: Multi-table real-time synchronization setup
-- **Health Monitoring**: Continuous database health and performance tracking
-- **Backup Management**: Automated backup creation and restoration
-- **Production Optimization**: Performance tuning and scaling preparation
-
-**Key Methods**:
-```javascript
-const mcpManager = new SupabaseMCPManager();
-
-// Initialize with full monitoring
-await mcpManager.initialize();
-
-// Deploy schema with force option
-await mcpManager.deploySchema({ force: true });
-
-// Set up real-time for all tables
-await mcpManager.initializeRealtimeSubscriptions();
-
-// Monitor health continuously
-await mcpManager.performHealthCheck();
-
-// Create production backup
-await mcpManager.createBackup({ includeData: true });
-```
-
-#### 3. MCP Realtime Context (`MCPRealtimeProvider`)
-**Role**: Client-side real-time data synchronization and presence
-**Location**: `lib/contexts/MCPRealtimeContext.js`
-**Capabilities**:
-- **Multi-Device Sync**: Real-time data synchronization across devices
-- **Presence Tracking**: User presence and activity monitoring
-- **Connection Management**: Automatic reconnection and health monitoring
-- **Event Broadcasting**: Custom real-time event handling
-- **Update Queuing**: Efficient batch processing of real-time updates
-
-**Usage in Components**:
-```javascript
-import { useMCPRealtime } from '../lib/contexts/MCPRealtimeContext';
-
-function PomodoroTimer() {
-  const { 
-    connectionStatus, 
-    trackPresence, 
-    subscribeToUserData,
-    getRealtimeData 
-  } = useMCPRealtime();
-
-  // Track user presence
-  useEffect(() => {
-    trackPresence(userId, { 
-      activity: 'pomodoro_timer',
-      status: 'active' 
-    });
-  }, [userId]);
-
-  // Subscribe to real-time session updates
-  useEffect(() => {
-    return subscribeToUserData(userId, (type, data) => {
-      if (type === 'sessions') {
-        updateLocalSessionData(data);
-      }
-    });
-  }, [userId]);
-}
-```
-
-### MCP Deployment Scripts
-
-#### 1. Deploy with MCP (`scripts/deploy-with-mcp.js`)
-**Role**: Automated deployment orchestration with monitoring
-**Commands**:
+### 로컬 개발 시 API 오류
 ```bash
-npm run mcp:deploy              # Standard deployment
-npm run mcp:deploy:force        # Force deployment (override existing)
-npm run mcp:deploy:production   # Production deployment with optimizations
-npm run mcp:monitor             # Continuous monitoring mode
+# 환경 변수 확인
+cat .env.local
+
+# 서버 재시작
+pkill -f "next dev"
+npm run dev
 ```
 
-**Features**:
-- **Step-by-step Deployment**: Automated schema, real-time, and health setup
-- **Backup Creation**: Automatic backup before deployment
-- **Production Optimization**: Performance tuning for production environments
-- **Monitoring Mode**: Continuous health monitoring and alerting
+### Vercel 배포 오류
+1. Environment Variables 확인
+2. Build Logs 확인: https://vercel.com/dashboard
+3. 로그 확인: `vercel logs [URL]`
 
-#### 2. MCP Testing (`scripts/test-mcp-deployment.js`)
-**Role**: Comprehensive deployment testing and validation
-**Command**: `npm run mcp:test`
-**Features**:
-- **Connection Testing**: Validate Supabase connections
-- **Schema Validation**: Verify table creation and constraints
-- **Real-time Testing**: Test real-time subscription functionality
-- **Performance Testing**: Basic performance and latency checks
+### Supabase 연결 오류
+- Supabase 프로젝트 상태 확인
+- API Keys 유효성 확인
+- 네트워크 연결 확인
 
-### MCP Best Practices
+---
 
-#### Environment Setup
+## 📚 참고 문서
+
+- **배포 가이드**: `VERCEL_DEPLOYMENT.md`
+- **개발 가이드**: `DEVELOPMENT.md`
+- **Admin 자격 증명**: `ADMIN_CREDENTIALS.md`
+- **미팅 협업**: `MEETING_COLLABORATION_GUIDE.md`
+
+---
+
+## 🔗 유용한 링크
+
+- **Vercel Dashboard**: https://vercel.com/dashboard
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/lasoynzegoiktncjzqad
+- **GitHub Repository**: (프로젝트 저장소 URL)
+- **Production URL**: https://pomodoro-beryl-ten.vercel.app
+
+---
+
+## ⚡ 빠른 명령어 참조
+
 ```bash
-# Required environment variables for MCP
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_key
-MCP_MONITORING_ENABLED=true
+# 개발
+npm run dev                   # 로컬 서버 시작
+npm run build                 # 프로덕션 빌드
+npm run start                 # 프로덕션 서버
+
+# Vercel
+vercel                        # 배포 (프리뷰)
+vercel --prod                 # 프로덕션 배포
+vercel ls                     # 배포 목록
+vercel env ls                 # 환경 변수 목록
+
+# 테스트
+curl http://localhost:3000/api/health                        # 로컬 헬스 체크
+curl https://pomodoro-beryl-ten.vercel.app/api/health       # 프로덕션 헬스 체크
 ```
 
-#### Real-time Development Workflow
-1. **Design Phase**: Use Figma MCP agent to access designs and post development questions
-2. **Development Phase**: Use MCP Realtime Context for live data during development
-3. **Testing Phase**: Use MCP deployment scripts for automated testing
-4. **Deployment Phase**: Use MCP deployment orchestrator for production deployment
-5. **Monitoring Phase**: Use MCP health monitoring for ongoing operations
+---
 
-#### Performance Optimization
-- **Query Caching**: MCP manager includes intelligent query caching
-- **Connection Pooling**: Automatic connection optimization
-- **Real-time Throttling**: Efficient real-time update batching
-- **Health Monitoring**: Proactive performance issue detection
+## 📌 중요 정보
 
-### Advanced MCP Features
+### Admin 접속
+- URL: https://pomodoro-beryl-ten.vercel.app/admin
+- Password: `admin123`
 
-#### Custom Event Handling
-The MCP system emits custom events for application-specific handling:
-```javascript
-// Listen for pomodoro completion events
-window.addEventListener('pomodoroCompleted', (event) => {
-  const { session } = event.detail;
-  triggerCelebrationAnimation(session);
-});
+### API 인증
+- Header: `x-user-token: {token}`
+- Admin 엔드포인트는 인증 불필요
 
-// Listen for real-time updates
-window.addEventListener('mcpRealtimeUpdate', (event) => {
-  const { table, event: updateType, payload } = event.detail;
-  handleCustomUpdate(table, updateType, payload);
-});
-```
+### 포트
+- 로컬 개발: 3000
+- 프로덕션: Vercel에서 자동 관리
 
-#### Monitoring and Alerting
-```javascript
-// Set up custom monitoring
-const healthInterval = setInterval(async () => {
-  const health = await mcpManager.performHealthCheck();
-  if (health.connectionStatus !== 'healthy') {
-    sendAlert('Database health degraded', health);
-  }
-}, 300000); // Check every 5 minutes
-```
+---
+
+**마지막 업데이트**: 2025-10-07
+**배포 플랫폼**: Vercel ✅
+**버전**: 1.0.2

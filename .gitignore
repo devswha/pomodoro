@@ -105,3 +105,4 @@ public
 Figma-Context-MCP/
 # Local Netlify folder
 .netlify
+.vercel

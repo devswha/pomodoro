@@ -3,20 +3,15 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
-  // Configure for Netlify deployment - static export for pages only
-  output: 'export',
-  trailingSlash: true,
+  // Vercel deployment - use server-side features
+  // output: 'export' removed - API Routes now work
   images: {
     unoptimized: true,
   },
-  // API routes will be handled separately via Netlify Functions
-  // Remove API routes rewrites for static export
-  // API routes will be handled by netlify.toml redirects
   // Environment variables for API routes
   env: {
     CUSTOM_KEY: 'my-value',
   },
-  // Disable server-side features for static export in production
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
